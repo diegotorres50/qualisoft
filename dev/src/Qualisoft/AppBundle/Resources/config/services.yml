@@ -1,0 +1,4 @@
+services:
+#    qualisoft_app.example:
+#        class: Qualisoft\AppBundle\Example
+#        arguments: [@service_id, "plain_value", %parameter%]

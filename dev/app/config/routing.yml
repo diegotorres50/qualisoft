@@ -1,5 +1,7 @@
+# @diegotorres50: import routes from a controller directory
 qualisoft_app:
-    resource: "@QualisoftAppBundle/Resources/config/routing.yml"
+    resource: "@QualisoftAppBundle/Controller"
+    type:     annotation
     prefix:   /
 
 app:

@@ -1,0 +1,4 @@
+# @diegotorres50 ninguna de las rutas definidas aqui las voy a usar porque anotaciones sera lo que voy a usar
+#qualisoft_app_homepage:
+#    path:     /hello/{name}
+#    defaults: { _controller: QualisoftAppBundle:Default:index }
