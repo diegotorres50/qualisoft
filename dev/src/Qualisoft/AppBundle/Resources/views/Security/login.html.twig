@@ -1,38 +1,59 @@
-{% extends 'QualisoftAppBundle::layout.html.twig' %}
+{#
+    @diegotorres50: Esta es la plantilla del login de Qualisoft
 
-{% block title %}{{ var }}{% endblock %}
+    #}
+
+{#Heredamos ek layout con todas las caracteristicas del frontend#}
+{% extends 'QualisoftAppBundle::layout.html.twig' %} 
+
+{% block title %}
+    {{ view_info.title }}
+{% endblock %}
+
+{% block module_title %}
+    {{ view_info.module_title }}
+{% endblock %}    
+
+{% block module_subtitle %}
+    {{ view_info.module_subtitle }}
+{% endblock %}
 
 {% block x_content %}
 
-                                    <form class="form-horizontal form-label-left" novalidate>
+{{ form_start(form, {'attr': {'class': 'form-horizontal form-label-left', 'novalidate': null}}) }}
 
-                                        <p>Para tener acceso a toda la aplicacion</p>
-                                        <span class="section">Login</span>
+    {% block content_lead %}
+        {{ view_info.module_lead }}
+    {% endblock %}
 
-                                        <div class="item form-group">
-                                            <label class="control-label col-md-3 col-sm-3 col-xs-12" for="name">User <span class="required">*</span>
-                                            </label>
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input id="name" class="form-control col-md-7 col-xs-12" data-validate-length-range="6" data-validate-words="2" name="name" placeholder="both name(s) e.g Jon Doe" required="required" type="text">
-                                            </div>
-                                        </div>
-                                       
-                                        <div class="item form-group">
-                                            <label for="password" class="control-label col-md-3">Password</label>
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <input id="password" type="password" name="password" data-validate-length="6,8" class="form-control col-md-7 col-xs-12" required="required">
-                                            </div>
-                                        </div>
-                                       
-                                        <div class="ln_solid"></div>
-                                        <div class="form-group">
-                                            <div class="col-md-6 col-md-offset-3">
-                                                <button type="submit" class="btn btn-primary">Cancel</button>
-                                                <button id="send" type="submit" class="btn btn-success">Submit</button>
-                                            </div>
-                                        </div>
-                                    </form>
+    {{ form_errors(form) }} {# Renderizamos la lista de errores como resultado de la validacion del formulario #}
 
+    <span class="section">Login</span>
+
+    <div class="item form-group">
+        {{ form_label(form.userId) }}
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            {{ form_widget(form.userId) }}
+            {{ form_errors(form.userId) }}
+        </div>
+    </div>
+
+    <div class="item form-group">
+        {{ form_label(form.userPass) }}
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            {{ form_widget(form.userPass) }}
+            {{ form_errors(form.userPass) }}
+        </div>
+    </div>
+
+    <div class="ln_solid"></div>
+    <div class="form-group">
+        <div class="col-md-6 col-md-offset-3">
+            {{ form_widget(form.sendData) }}
+        </div>
+    </div>
+
+{{ form_end(form) }}    
 
 {% endblock %}
 
@@ -40,49 +61,50 @@
 
 {{ parent() }}
 
-    <!-- form validation -->
-    <script src="{{ asset('bundles/qualisoftapp/js/validator/validator.js') }}"></script>
-    <script>
-        // initialize the validator function
-        validator.message['date'] = 'not a real date';
+<!-- form validation -->
+<script src="{{ asset('bundles/qualisoftapp/js/validator/validator.js') }}"></script>
+<script>
+    // initialize the validator function
+    validator.message['date'] = 'not a real date';
 
-        // validate a field on "blur" event, a 'select' on 'change' event & a '.reuired' classed multifield on 'keyup':
-        $('form')
-            .on('blur', 'input[required], input.optional, select.required', validator.checkField)
-            .on('change', 'select.required', validator.checkField)
-            .on('keypress', 'input[required][pattern]', validator.keypress);
+    // validate a field on "blur" event, a 'select' on 'change' event & a '.reuired' classed multifield on 'keyup':
+    $('form')
+    .on('blur', 'input[required], input.optional, select.required', validator.checkField)
+    .on('change', 'select.required', validator.checkField)
+    .on('keypress', 'input[required][pattern]', validator.keypress);
 
-        $('.multi.required')
-            .on('keyup blur', 'input', function () {
-                validator.checkField.apply($(this).siblings().last()[0]);
-            });
+    $('.multi.required')
+    .on('keyup blur', 'input', function () {
+        validator.checkField.apply($(this).siblings().last()[0]);
+    });
 
-        // bind the validation to the form submit event
-        //$('#send').click('submit');//.prop('disabled', true);
+    // bind the validation to the form submit event
+    //$('#send').click('submit');//.prop('disabled', true);
 
-        $('form').submit(function (e) {
-            e.preventDefault();
-            var submit = true;
-            // evaluate the form using generic validaing
-            if (!validator.checkAll($(this))) {
-                submit = false;
-            }
+    $('form').submit(function (e) {
+        e.preventDefault();
+        var submit = true;
+        // evaluate the form using generic validaing
+        if (!validator.checkAll($(this))) {
+            submit = false;
+        }
 
-            if (submit)
-                this.submit();
-            return false;
-        });
+        if (submit)
+            this.submit();
+        return false;
+    });
 
-        /* FOR DEMO ONLY */
-        $('#vfields').change(function () {
-            $('form').toggleClass('mode2');
-        }).prop('checked', false);
+    /* FOR DEMO ONLY */
+    $('#vfields').change(function () {
+        $('form').toggleClass('mode2');
+    }).prop('checked', false);
 
-        $('#alerts').change(function () {
-            validator.defaults.alerts = (this.checked) ? false : true;
-            if (this.checked)
-                $('form .alert').remove();
-        }).prop('checked', false);
+    $('#alerts').change(function () {
+        validator.defaults.alerts = (this.checked) ? false : true;
+        if (this.checked)
+            $('form .alert').remove();
+    }).prop('checked', false);
     </script>
 
-{% endblock %}    
+{% endblock %}  
+
