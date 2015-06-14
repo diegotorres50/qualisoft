@@ -1,0 +1,81 @@
+Qualisoft\AppBundle\Entity\App\Users:
+    type: entity
+    table: null
+    repositoryClass: Qualisoft\AppBundle\Entity\App\UsersRepository
+    id:
+        id:
+            type: integer
+            id: true
+            generator:
+                strategy: AUTO
+    fields:
+        userId:
+            type: string
+            length: '20'
+            column: user_id
+        userDocument:
+            type: string
+            length: '15'
+            column: user_document
+        userStatusCode:
+            type: string
+            length: '3'
+            column: user_status_code
+        userName:
+            type: string
+            length: '200'
+            column: user_name
+        userMail:
+            type: string
+            length: '200'
+            column: user_mail
+        userPass:
+            type: string
+            length: '255'
+            column: user_pass
+        userLanguage:
+            type: string
+            length: '3'
+            column: user_language
+        userDebugger:
+            type: smallint
+            column: user_debugger
+        userSecretquestion:
+            type: string
+            length: '200'
+            column: user_secretquestion
+        userSecretanswer:
+            type: string
+            length: '200'
+            column: user_secretanswer
+        userBirthday:
+            type: date
+            column: user_birthday
+        userLastactivation:
+            type: date
+            column: user_lastactivation
+        userAlloweddays:
+            type: integer
+            column: user_alloweddays
+        userPhoto:
+            type: blob
+            column: user_photo
+        userRoleCode:
+            type: string
+            length: '20'
+            column: user_role_code
+        userNotes:
+            type: text
+            column: user_notes
+        userLastmovementdate:
+            type: datetime
+            column: user_lastmovementdate
+        userLastmovementip:
+            type: string
+            length: '10'
+            column: user_lastmovementip
+        userLastmovementwho:
+            type: string
+            length: '10'
+            column: user_lastmovementwho
+    lifecycleCallbacks: {  }
