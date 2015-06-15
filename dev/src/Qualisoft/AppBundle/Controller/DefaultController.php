@@ -24,7 +24,7 @@ class DefaultController extends Controller
                                'Debe estar logueado para ver este contenido.'
                            );
             
-            return $this->redirect($this->generateUrl('bd_homepagelogin'));
+            return $this->redirect($this->generateUrl('qualisoft_security_login'));
         }
 
         return $this->render('QualisoftAppBundle:Default:index.html.twig', array('var' => 'Any Value Here'));
