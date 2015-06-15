@@ -1,3 +1,8 @@
 {% extends 'QualisoftAppBundle::layout.html.twig' %}
 
 {% block title %}{{ var }}{% endblock %}
+
+{% block content_lead %}
+    Hola {{app.session.get('userName')}}
+{% endblock %}
+

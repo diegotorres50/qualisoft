@@ -117,7 +117,7 @@ class SecurityController extends Controller
                      *Definimos la consulta, ver ejemplos: http://doctrine-orm.readthedocs.org/en/latest/reference/query-builder.html y conceptos en
                      *http://gitnacho.github.io/symfony-docs-es/book/doctrine.html
                      */
-                    $qualisoft_users_query = $em->createQuery('SELECT qualisoft_users.userId FROM QualisoftAppBundle:Users qualisoft_users WHERE qualisoft_users.userId= :userId_ and qualisoft_users.userPass= :userPass_')
+                    $qualisoft_users_query = $em->createQuery('SELECT qualisoft_users.userId, qualisoft_users.userName FROM QualisoftAppBundle:Users qualisoft_users WHERE qualisoft_users.userId= :userId_ and qualisoft_users.userPass= :userPass_')
                     ->setParameters($parameters)
                     ->setMaxResults(1);
                     
@@ -137,11 +137,34 @@ class SecurityController extends Controller
                      */
                     //$qualisoft_users_query=$this->getDoctrine()->getRepository('QualisoftAppBundle:Users')->findOneBy(array("userId"=>$userId,"userPass"=>$userPass));
 
-                    /*Lanzamos una excepcion aqui*/
-                    if (!$query_result) {
+                    /*Validamos que hacer con el usuario*/
+                    if ($query_result) {
+
+                        $session=$request->getSession();
+
+                        $session->set("userId", $query_result['userId']);
+                        $session->set("userName", $query_result['userName']);
+
+                        /* Usando y siguiendo el metodo Cesar Cansino seria asi.
+                        $session->set("userId", $query_result->getuserId());
+                        $session->set("userName", $query_result->getuserName());
+                        */    
+
+                       return $this->redirect($this->generateUrl('qualisoft_default_homepage'));
+
+                    } else {
+
+                        /*Lanzamos una excepcion aqui
                         throw $this->createNotFoundException(
                             'No existe el usuario '. $userId
-                        );
+                        ); */                                   {
+                        
+                        $this->get('session')->getFlashBag()->add(
+                                    'warning_msg',
+                                    'Los datos ingresados no son v&aacute;lidos!'
+                                );
+                        
+                        return $this->redirect($this->generateUrl('qualisoft_security_login'));
                     }
 
 
@@ -155,9 +178,7 @@ class SecurityController extends Controller
 
                }    
 
-
-
-
+            }   
 
 	    }
 	 
@@ -180,41 +201,7 @@ class SecurityController extends Controller
                 )
             );
 
-
-
-/*
-CansinO:
-
-        if($request->getMethod()=="POST")
-        {
-            $email=$request->get("correo");
-            $password=$request->get("pass");
-            //echo "correo=".$correo."<br>pass=".$pass;exit;
-            $user=$this->getDoctrine()->getRepository('bdBundle:Usuarios')->findOneBy(array("correo"=>$email,"pass"=>$password));
-            if($user)
-            {
-               $session=$request->getSession();
-               $session->set("id",$user->getId());
-               $session->set("nombre",$user->getNombre());
-               //echo $session->get("nombre");exit;
-               return $this->redirect($this->generateUrl('bd_homepage'));
-            }else
-            {
-                 $this->get('session')->getFlashBag()->add(
-                                'mensaje',
-                                'Los datos ingresados no son válidos'
-                            );
-                    return $this->redirect($this->generateUrl('bd_homepagelogin'));
-            }
-        }
-        
-        return $this->render('bdBundle:Trabajo:login.html.twig');
-*/
-
-
-
-
-        
+       
     }
       
 	 /**
@@ -225,10 +212,10 @@ CansinO:
         $session=$request->getSession();
         $session->clear();
         $this->get('session')->getFlashBag()->add(
-                                'mensaje',
+                                'warning_msg',
                                 'Se ha cerrado sessión exitosamente, gracias por visitarnos'
                             );
-                    return $this->redirect($this->generateUrl('bd_homepagelogin'));
+        return $this->redirect($this->generateUrl('qualisoft_security_login'));
     }
 
 }

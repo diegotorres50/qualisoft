@@ -18,15 +18,20 @@
     {{ view_info.module_subtitle }}
 {% endblock %}
 
+{% block content_lead %}
+    {{ view_info.module_lead }}
+{% endblock %}
+
 {% block x_content %}
 
 {{ form_start(form, {'attr': {'class': 'form-horizontal form-label-left', 'novalidate': null}}) }}
 
-    {% block content_lead %}
-        {{ view_info.module_lead }}
-    {% endblock %}
-
     {{ form_errors(form) }} {# Renderizamos la lista de errores como resultado de la validacion del formulario #}
+
+    {% for flashMessage in app.session.flashbag.get('warning_msg') %}
+        {{ flashMessage }}
+        <hr />
+    {% endfor %}    
 
     <span class="section">Login</span>
 
