@@ -31,7 +31,7 @@ class SecurityController extends Controller
                  ),
                 'label' => 'Usuario*', 
                 'label_attr' => array('class' => 'control-label col-md-3'),
-                'mapped' => false,
+                'mapped' => true, //el campo dejar de ser omitido al leer o escribir el objeto, en false el valor no aparece en el array de datos obtenidos
                 'required' => true,
                 'error_bubbling' => true,
                 'attr' => array(
@@ -51,8 +51,7 @@ class SecurityController extends Controller
                  ),
                 'label' => 'Clave:', 
                 'label_attr' => array('class' => 'control-label col-md-3'),
-                'mapped' => false,
-                'required' => true,
+                'mapped' => true, //el campo dejar de ser omitido al leer o escribir el objeto, en false el valor no aparece en el array de datos obtenidos                'required' => true,
                 'error_bubbling' => true,
                 'attr' => array(
                     'class' => 'form-control',
@@ -70,17 +69,95 @@ class SecurityController extends Controller
              )      
 	        ->getForm();
 	 
+        /**
+         *  El método handleRequest() detecta que el formulario no se ha enviado y por tanto, no hace nada.
+         *  Cuando el usuario envía el formulario, el método handleRequest() lo detecta y guarda inmediatamente los datos enviados en las propiedades task y dueDate del objeto $task. 
+         */
 	    $form->handleRequest($request);
 	 
+        /**
+         * devuelve false si el formulario no se ha enviado
+         */
 	    if ($form->isValid()) {
-            // data es un array con claves 'name', 'email', y 'message'
-	        $data = $form->getData();
-            var_dump($data); exit;
-            $nextAction = $form->get('saveAndAdd')->isClicked()
-                    ? 'task_new'
-                    : 'task_success';
 
-            return $this->redirectToRoute($nextAction);
+               if($request->getMethod()=="POST")
+               {
+
+                    /*
+                    //@diepgotorres50: esta es una opcion para capturar los campos enviados del formulario    
+                    $userId=$request->get("userId");
+                    $userPass=$request->get("userPass");
+                    */ 
+                   
+                    $data = $form->getData(); //Esto recupera en un array las llaves y valores de los campos enviakdos en el formulario
+
+                    /*Obtenemos el usuario y clave enviado por el formulario*/
+                    $userId = $data['userId'];
+                    $userPass = $data['userPass'];                   
+
+
+                    /*
+                     *Obtener datos de cada base de datos indistintamente y siempre que sea necesario,
+                     *Ees decir,  accedemos al recurso default, es decir las transacciones que seamos capaces de realizar a través de $em tendrán efecto 
+                     *en la base de datos bd1 de la conexión default.
+                    */                    
+                    $em = $this->getDoctrine()->getManager(); //Ver mas: http://mycyberacademy.com/conectandose-a-varias-bases-de-datos-con-symfony2-doctrine/
+
+
+                    /*
+                     *Parametros del query, basicamente aqui es un arrya con los valores de los campos usuario y clave del formulario
+                     *que se compararan con la tabla usuarios de la base de datos
+                     */
+                    $parameters = array(
+                        'userId_' => $userId, 
+                        'userPass_' => md5(md5($userPass)) //Esta clave debe estar doblemente encriptada
+                    );
+
+                    /**
+                     *Definimos la consulta, ver ejemplos: http://doctrine-orm.readthedocs.org/en/latest/reference/query-builder.html y conceptos en
+                     *http://gitnacho.github.io/symfony-docs-es/book/doctrine.html
+                     */
+                    $qualisoft_users_query = $em->createQuery('SELECT qualisoft_users.userId FROM QualisoftAppBundle:Users qualisoft_users WHERE qualisoft_users.userId= :userId_ and qualisoft_users.userPass= :userPass_')
+                    ->setParameters($parameters)
+                    ->setMaxResults(1);
+                    
+
+                    try {
+                        /**
+                         *Ejecutamos la consulta 
+                         */
+                        //$query_result = $qualisoft_users_query->getResult(); //Devuelve un array con el resultado
+                        $query_result = $qualisoft_users_query->getSingleResult(); //Para cuando buscamos un solo resultabdo pero debemos contrlar la excepcion
+                    } catch (\Doctrine\Orm\NoResultException $e) {
+                        $query_result = null;
+                    }
+
+                    /*
+                     *Este metodo es de Cesar Cansino, muy al estilo de Doctrine, poco clasico y convencional para los desarrolladores clasicos, pero funciona perfecto
+                     */
+                    //$qualisoft_users_query=$this->getDoctrine()->getRepository('QualisoftAppBundle:Users')->findOneBy(array("userId"=>$userId,"userPass"=>$userPass));
+
+                    /*Lanzamos una excepcion aqui*/
+                    if (!$query_result) {
+                        throw $this->createNotFoundException(
+                            'No existe el usuario '. $userId
+                        );
+                    }
+
+
+                    var_dump($query_result); exit;
+
+                    $nextAction = $form->get('saveAndAdd')->isClicked()
+                            ? 'task_new'
+                            : 'task_success';
+
+                    return $this->redirectToRoute($nextAction);
+
+               }    
+
+
+
+
 
 	    }
 	 
@@ -103,24 +180,6 @@ class SecurityController extends Controller
                 )
             );
 
-
-/* Para validar manualmente el formulario
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
- 
-$builder
-   ->add('firstName', 'text', array(
-       'constraints' => new Length(array('min' => 3)),
-   ))
-   ->add('lastName', 'text', array(
-       'constraints' => array(
-           new NotBlank(),
-           new Length(array('min' => 3)),
-       ),
-   ))
-;
-
-*/
 
 
 /*
@@ -173,100 +232,3 @@ CansinO:
     }
 
 }
-
-
-/*
-
-Para la plantilla
-
-{# src/Acme/TaskBundle/Resources/views/Form/fields.html.twig #}
-{% block form_row %}
-{% spaceless %}
-    <div class="form_row">
-        {{ form_label(form) }}
-        {{ form_errors(form) }}
-        {{ form_widget(form) }}
-    </div>
-{% endspaceless %}
-{% endblock form_row %}
-
-
-{# src/Acme/TaskBundle/Resources/views/Default/new.html.twig #}
-{{ form_start(form) }}
-    {{ form_errors(form) }}
- 
-    {{ form_row(form.task) }}
-    {{ form_row(form.dueDate) }}
- 
-    {{ form_rest(form) }}
- 
-    <input type="submit" />
-{{ form_end(form) }}
-
-
-
-TRUCO Para acceder a los datos del formulario, utiliza la notación form.vars.value:
-
-TWIG
-PHP
-{{ form.vars.value.task }}
-
-
-12.5.1. Mostrando cada campo a mano
-El helper form_row es muy útil porque puedes mostrar fácilmente cada campo del formulario (y también puedes personalizar su aspecto). Pero a veces necesitas un control todavía más preciso de cómo se muestra cada una de las partes que forman el campo de formulario. Para ello tendrás que utilizar otros helpers, tal y como muestra el siguiente código (que produce un resultado similar a utilizar el helper form_row):
-
-TWIG
-PHP
-{{ form_start(form) }}
-    {{ form_errors(form) }}
- 
-    <div>
-        {{ form_label(form.task) }}
-        {{ form_errors(form.task) }}
-        {{ form_widget(form.task) }}
-    </div>
- 
-    <div>
-        {{ form_label(form.dueDate) }}
-        {{ form_errors(form.dueDate) }}
-        {{ form_widget(form.dueDate) }}
-    </div>
- 
-    <div>
-        {{ form_widget(form.save) }}
-    </div>
- 
-{{ form_end(form) }}
-Si el título generado automáticamente para un campo no es del todo correcto, puedes especificarlo explícitamente:
-
-TWIG
-PHP
-{{ form_label(form.task, 'Task Description') }}
-Algunos tipos de campo definen opciones de configuración relacionadas con la forma en la que se muestran. Estas opciones están documentadas con cada tipo, pero una opción común es attr, que te permite modificar los atributos del elemento del formulario. El siguiente ejemplo añade la clase task_field de CSS al elemento HTML utilizado para representar el campo task:
-
-TWIG
-PHP
-{{ form_widget(form.task, { 'attr': {'class': 'task_field'} }) }}
-Si necesitas renderizar los campos de formulario a mano, también puedes acceder a los valores individuales de cada campo (como el id, el name y el label). Por ejemplo, para obtener el id:
-
-TWIG
-PHP
-{{ form.task.vars.id }}
-Para obtener el valor del atributo name del campo de formulario, utiliza en su lugar la propiedad full_name:
-
-TWIG
-PHP
-{{ form.task.vars.full_name }}
-
-
-        $form = $this->createFormBuilder($task)
-            ->add('task', 'text')
-            ->add('dueDate', 'date')
-            ->add('save', 'submit')
-            ->getForm();
- 
-        return $this->render('AcmeTaskBundle:Default:new.html.twig', array(
-            'form' => $form->createView(),
-        ));
-
-*/
