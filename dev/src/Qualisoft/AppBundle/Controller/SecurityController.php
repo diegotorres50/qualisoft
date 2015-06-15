@@ -16,6 +16,13 @@ class SecurityController extends Controller
     {
 
 
+        //Si la sesion ya existe, no mostramos el formulario de login
+        if($request->getSession()->has("userId"))
+        {
+            return $this->redirect($this->generateUrl('qualisoft_default_homepage'));
+        }    
+
+
 	    $defaultData = array('message' => 'Type your message here');
 
 	    $form = $this->createFormBuilder($defaultData)
@@ -160,7 +167,7 @@ class SecurityController extends Controller
                         ); */                                   {
                         
                         $this->get('session')->getFlashBag()->add(
-                                    'warning_msg',
+                                    'error_msg',
                                     'Los datos ingresados no son v&aacute;lidos!'
                                 );
                         
@@ -209,12 +216,20 @@ class SecurityController extends Controller
      */      
     public function logoutAction(Request $request)
     {
+        
         $session=$request->getSession();
-        $session->clear();
-        $this->get('session')->getFlashBag()->add(
-                                'warning_msg',
-                                'Se ha cerrado sessión exitosamente, gracias por visitarnos'
-                            );
+
+        //Si la sesion existe, entonces si la limpiamos
+        if($session->has("userId"))
+        {
+            $session=$request->getSession();
+            $session->clear();
+            $this->get('session')->getFlashBag()->add(
+                                    'success_msg',
+                                    'Se ha cerrado sessión exitosamente, gracias por visitarnos'
+                                );
+        }    
+
         return $this->redirect($this->generateUrl('qualisoft_security_login'));
     }
 

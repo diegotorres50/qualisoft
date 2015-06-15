@@ -6,3 +6,54 @@
     Hola {{app.session.get('userName')}}
 {% endblock %}
 
+{% block content_alerts %}
+
+	<div class="alert alert-info alert-dismissible fade in" role="alert">
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+		</button>
+		<strong>Info!</strong> Hola {{app.session.get('userName')}}
+	</div>
+
+    {% for flashMessage in app.session.flashbag.get('warning_msg') %}
+
+        <div class="alert alert-warning alert-dismissible fade in" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+            </button>
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+            <strong>Warning!</strong> {{ flashMessage }}
+        </div>
+
+    {% endfor %} 
+
+    {% for flashMessage in app.session.flashbag.get('info_msg') %}
+
+        <div class="alert alert-info alert-dismissible fade in" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+            </button>
+            <strong>Info!</strong> {{ flashMessage }}
+        </div>
+
+    {% endfor %}
+
+    {% for flashMessage in app.session.flashbag.get('error_msg') %}
+
+        <div class="alert alert-danger alert-dismissible fade in" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+            </button>
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+            <strong>Error!</strong> {{ flashMessage }}
+        </div>
+
+    {% endfor %} 
+
+    {% for flashMessage in app.session.flashbag.get('success_msg') %}
+
+        <div class="alert alert-success alert-dismissible fade in" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+            </button>
+            <strong>Wow!</strong> {{ flashMessage }}
+        </div>
+
+    {% endfor %}                
+
+{% endblock %}
