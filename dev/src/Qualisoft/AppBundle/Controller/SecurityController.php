@@ -157,6 +157,11 @@ class SecurityController extends Controller
                         $session->set("userName", $query_result->getuserName());
                         */    
 
+                        $this->get('session')->getFlashBag()->add(
+                                    'success_msg',
+                                    'Hola ' . $query_result['userName']
+                                );
+
                        return $this->redirect($this->generateUrl('qualisoft_default_homepage'));
 
                     } else {

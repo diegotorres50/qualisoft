@@ -6,151 +6,191 @@
 {#Heredamos ek layout con todas las caracteristicas del frontend#}
 {% extends 'QualisoftAppBundle::layout.html.twig' %} 
 
+{#
+    titulo de la pagina
+    #}
 {% block title %}
     {{ view_info.title }}
 {% endblock %}
 
+{#
+    titulo del modulo
+    #}
 {% block module_title %}
     {{ view_info.module_title }}
 {% endblock %}    
 
+{#
+    subtitulo del modulo
+    #}
 {% block module_subtitle %}
     {{ view_info.module_subtitle }}
 {% endblock %}
 
+{#
+    descripcion del modulo
+    #}
 {% block content_lead %}
     {{ view_info.module_lead }}
 {% endblock %}
 
+{#
+    contenido de la pagina
+    #}
 {% block x_content %}
 
-{% block content_alerts %}
+    {#
+        contenido de las alertas debe ir debtro del content
+        #}
+    {% block content_alerts %}
 
-    {% for flashMessage in app.session.flashbag.get('warning_msg') %}
+        {% for flashMessage in app.session.flashbag.get('warning_msg') %}
 
-        <div class="alert alert-warning alert-dismissible fade in" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
-            </button>
-            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-            <strong>Warning!</strong> {{ flashMessage }}
+            {#
+            Incluimos la plantilla de la alerta
+            #}
+            {{ include('QualisoftAppBundle::alerts.html.twig', { 
+                'msgClass': 'alert-warning', 
+                'msgGlyphicon': 'glyphicon-exclamation-sign',
+                'msgTitle': 'Warning!',
+                'msgText': flashMessage }
+                ) 
+            }}
+
+        {% endfor %} 
+
+        {% for flashMessage in app.session.flashbag.get('info_msg') %}
+
+            {#
+            Incluimos la plantilla de la alerta
+            #}
+            {{ include('QualisoftAppBundle::alerts.html.twig', { 
+                'msgClass': 'alert-info', 
+                'msgTitle': 'Info',
+                'msgText': flashMessage }
+                ) 
+            }}
+
+        {% endfor %}
+
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+
+            {#
+            Incluimos la plantilla de la alerta
+            #}
+            {{ include('QualisoftAppBundle::alerts.html.twig', { 
+                'msgClass': 'alert-danger', 
+                'msgGlyphicon': 'glyphicon-exclamation-sign',
+                'msgTitle': 'Error!',
+                'msgText': flashMessage }
+                ) 
+            }}        
+
+        {% endfor %} 
+
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+
+            {#
+            Incluimos la plantilla de la alerta
+            #}
+            {{ include('QualisoftAppBundle::alerts.html.twig', { 
+                'msgClass': 'alert-success', 
+                'msgTitle': ':)',
+                'msgText': flashMessage }
+                ) 
+            }} 
+
+        {% endfor %}                
+
+    {% endblock %}
+
+    {#
+    Aqui va el formulario
+    #}
+    {{ form_start(form, {'attr': {'class': 'form-horizontal form-label-left', 'novalidate': null}}) }}
+
+        {{ form_errors(form) }} {# Renderizamos la lista de errores como resultado de la validacion del formulario #}
+
+        <span class="section">Login</span>
+
+        <div class="item form-group">
+            {{ form_label(form.userId) }}
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                {{ form_widget(form.userId) }}
+                {{ form_errors(form.userId) }}
+            </div>
         </div>
 
-    {% endfor %} 
-
-    {% for flashMessage in app.session.flashbag.get('info_msg') %}
-
-        <div class="alert alert-info alert-dismissible fade in" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
-            </button>
-            <strong>Info!</strong> {{ flashMessage }}
+        <div class="item form-group">
+            {{ form_label(form.userPass) }}
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                {{ form_widget(form.userPass) }}
+                {{ form_errors(form.userPass) }}
+            </div>
         </div>
 
-    {% endfor %}
-
-    {% for flashMessage in app.session.flashbag.get('error_msg') %}
-
-        <div class="alert alert-danger alert-dismissible fade in" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
-            </button>
-            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>|
-            <strong>Error!</strong> {{ flashMessage }}
+        <div class="ln_solid"></div>
+        <div class="form-group">
+            <div class="col-md-6 col-md-offset-3">
+                {{ form_widget(form.sendData) }}
+            </div>
         </div>
 
-    {% endfor %} 
-
-    {% for flashMessage in app.session.flashbag.get('success_msg') %}
-
-        <div class="alert alert-success alert-dismissible fade in" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
-            </button>
-            <strong>Wow!</strong> {{ flashMessage }}
-        </div>
-
-    {% endfor %}                
+    {{ form_end(form) }}    
 
 {% endblock %}
 
-{{ form_start(form, {'attr': {'class': 'form-horizontal form-label-left', 'novalidate': null}}) }}
 
-    {{ form_errors(form) }} {# Renderizamos la lista de errores como resultado de la validacion del formulario #}
-
-    <span class="section">Login</span>
-
-    <div class="item form-group">
-        {{ form_label(form.userId) }}
-        <div class="col-md-6 col-sm-6 col-xs-12">
-            {{ form_widget(form.userId) }}
-            {{ form_errors(form.userId) }}
-        </div>
-    </div>
-
-    <div class="item form-group">
-        {{ form_label(form.userPass) }}
-        <div class="col-md-6 col-sm-6 col-xs-12">
-            {{ form_widget(form.userPass) }}
-            {{ form_errors(form.userPass) }}
-        </div>
-    </div>
-
-    <div class="ln_solid"></div>
-    <div class="form-group">
-        <div class="col-md-6 col-md-offset-3">
-            {{ form_widget(form.sendData) }}
-        </div>
-    </div>
-
-{{ form_end(form) }}    
-
-{% endblock %}
-
+{#
+    Incluimos en el footer la logica del validator
+    #}
 {% block footer_javascripts %}
 
-{{ parent() }}
+    {{ parent() }}
 
-<!-- form validation -->
-<script src="{{ asset('bundles/qualisoftapp/js/validator/validator.js') }}"></script>
-<script>
-    // initialize the validator function
-    validator.message['date'] = 'not a real date';
+    <!-- form validation -->
+    <script src="{{ asset('bundles/qualisoftapp/js/validator/validator.js') }}"></script>
+    <script>
+        // initialize the validator function
+        validator.message['date'] = 'not a real date';
 
-    // validate a field on "blur" event, a 'select' on 'change' event & a '.reuired' classed multifield on 'keyup':
-    $('form')
-    .on('blur', 'input[required], input.optional, select.required', validator.checkField)
-    .on('change', 'select.required', validator.checkField)
-    .on('keypress', 'input[required][pattern]', validator.keypress);
+        // validate a field on "blur" event, a 'select' on 'change' event & a '.reuired' classed multifield on 'keyup':
+        $('form')
+        .on('blur', 'input[required], input.optional, select.required', validator.checkField)
+        .on('change', 'select.required', validator.checkField)
+        .on('keypress', 'input[required][pattern]', validator.keypress);
 
-    $('.multi.required')
-    .on('keyup blur', 'input', function () {
-        validator.checkField.apply($(this).siblings().last()[0]);
-    });
+        $('.multi.required')
+        .on('keyup blur', 'input', function () {
+            validator.checkField.apply($(this).siblings().last()[0]);
+        });
 
-    // bind the validation to the form submit event
-    //$('#send').click('submit');//.prop('disabled', true);
+        // bind the validation to the form submit event
+        //$('#send').click('submit');//.prop('disabled', true);
 
-    $('form').submit(function (e) {
-        e.preventDefault();
-        var submit = true;
-        // evaluate the form using generic validaing
-        if (!validator.checkAll($(this))) {
-            submit = false;
-        }
+        $('form').submit(function (e) {
+            e.preventDefault();
+            var submit = true;
+            // evaluate the form using generic validaing
+            if (!validator.checkAll($(this))) {
+                submit = false;
+            }
 
-        if (submit)
-            this.submit();
-        return false;
-    });
+            if (submit)
+                this.submit();
+            return false;
+        });
 
-    /* FOR DEMO ONLY */
-    $('#vfields').change(function () {
-        $('form').toggleClass('mode2');
-    }).prop('checked', false);
+        /* FOR DEMO ONLY */
+        $('#vfields').change(function () {
+            $('form').toggleClass('mode2');
+        }).prop('checked', false);
 
-    $('#alerts').change(function () {
-        validator.defaults.alerts = (this.checked) ? false : true;
-        if (this.checked)
-            $('form .alert').remove();
-    }).prop('checked', false);
-    </script>
+        $('#alerts').change(function () {
+            validator.defaults.alerts = (this.checked) ? false : true;
+            if (this.checked)
+                $('form .alert').remove();
+        }).prop('checked', false);
+        </script>
 
-{% endblock %}  
-
+{% endblock %}
