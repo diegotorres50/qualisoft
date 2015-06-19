@@ -173,7 +173,7 @@ class SecurityController extends Controller
                         
                         $this->get('session')->getFlashBag()->add(
                                     'error_msg',
-                                    'Los datos ingresados no son v&aacute;lidos!'
+                                    'Los datos ingresados no son válidos!'
                                 );
                         
                         return $this->redirect($this->generateUrl('qualisoft_security_login'));

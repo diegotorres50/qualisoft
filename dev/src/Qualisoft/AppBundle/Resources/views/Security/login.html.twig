@@ -109,7 +109,20 @@
     #}
     {{ form_start(form, {'attr': {'id': 'login-form', 'class': 'form-horizontal form-label-left', 'data-parsley-validate': null}}) }}
 
-        {{ form_errors(form) }} {# Renderizamos la lista de errores como resultado de la validacion del formulario #}
+        {#
+        Incluimos la plantilla de la alerta y
+        Renderizamos la lista de errores como resultado de la validacion del formulario
+        #}
+        {% if form_errors(form) is not empty %}
+            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+                'msgClass': 'alert-warning', 
+                'msgGlyphicon': 'glyphicon-exclamation-sign',
+                'msgTitle': 'Warning!',
+                'msgText': form_errors(form) } 
+                ) 
+            }}
+        {% endif %}            
+        {# ojo, form_errors(form) no escapa las etiquetas <ul><li>, hay que revisarlo#}
 
         <span class="section">Login</span>
 
