@@ -57,7 +57,6 @@
                     </div>
                     <div class="clearfix"></div>
 
-
                     <!-- menu profile quick info -->
                     {% if app.session.get('userId') %} {#si existe la sesion, mostramos este modulo de informacion de usuario #}
 
@@ -124,7 +123,7 @@
             {#
                 Incluimos la plantilla de la barra de navegacion
              #}
-            {{ include('QualisoftAppBundle::layout_top_nav.html.twig')}} 
+            {{ include('QualisoftAppBundle:Layout:top_nav.html.twig')}} 
             <!-- /top navigation -->
 
             <!-- page content -->

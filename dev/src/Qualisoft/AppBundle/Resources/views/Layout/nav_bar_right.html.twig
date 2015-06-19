@@ -1,0 +1,28 @@
+<ul class="nav navbar-nav navbar-right">
+
+    <!-- menu de usuario aqui //-->
+    {#
+    Incluimos la plantilla del menu de usuario
+    #}
+    {% if app.session.get('userId') %} {#si existe la sesion, mostramos este modulo de informacion de usuario #}
+
+        {#
+            Incluimos la plantilla de la barra de navegacion derecha
+         #}
+        {{ include('QualisoftAppBundle:UserZone:profile_usermenu.html.twig')}} 
+    {% endif %}
+    <!-- /menu de usuario aqui //-->
+
+    <!-- modulo general de alertas de usuario //-->
+    {#
+    Incluimos la plantilla del menu de usuario
+    #}
+    {% if app.session.get('userId') %} {#si existe la sesion, mostramos este modulo de informacion de usuario #}
+
+        {#
+            Incluimos la plantilla de la barra de navegacion derecha
+         #}
+        {{ include('QualisoftAppBundle:UserZone:profile_useralerts.html.twig')}} 
+    {% endif %}
+    <!-- /modulo general de alertas de usuario //-->
+</ul>
