@@ -21,7 +21,7 @@
             {#
             Incluimos la plantilla de la alerta
             #}
-            {{ include('QualisoftAppBundle::alerts.html.twig', { 
+            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
                 'msgClass': 'alert-warning', 
                 'msgGlyphicon': 'glyphicon-exclamation-sign',
                 'msgTitle': 'Warning!',
@@ -36,7 +36,7 @@
             {#
             Incluimos la plantilla de la alerta
             #}
-            {{ include('QualisoftAppBundle::alerts.html.twig', { 
+            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
                 'msgClass': 'alert-info', 
                 'msgTitle': 'Info',
                 'msgText': flashMessage }
@@ -50,7 +50,7 @@
             {#
             Incluimos la plantilla de la alerta
             #}
-            {{ include('QualisoftAppBundle::alerts.html.twig', { 
+            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
                 'msgClass': 'alert-danger', 
                 'msgGlyphicon': 'glyphicon-exclamation-sign',
                 'msgTitle': 'Error!',
@@ -65,7 +65,7 @@
             {#
             Incluimos la plantilla de la alerta
             #}
-            {{ include('QualisoftAppBundle::alerts.html.twig', { 
+            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
                 'msgClass': 'alert-success', 
                 'msgTitle': ':)',
                 'msgText': flashMessage }

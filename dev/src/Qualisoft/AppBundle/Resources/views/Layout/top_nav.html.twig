@@ -1,0 +1,20 @@
+<div class="top_nav">
+    {% block top_nav %}
+    <div class="nav_menu">
+        <nav class="" role="navigation">
+            <div class="nav toggle">
+                <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+            </div>
+
+            <!-- Aqui va el nav_bar_right //-->
+            {#
+                Incluimos la plantilla de la barra de navegacion derecha
+            #}
+            {{ include('QualisoftAppBundle:Layout:nav_bar_right.html.twig')}} 
+            <!-- /nav_bar_right -->            
+
+        </nav>
+    </div>
+    {% endblock %}
+
+</div>
