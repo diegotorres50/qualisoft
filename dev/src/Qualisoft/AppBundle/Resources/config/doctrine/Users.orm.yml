@@ -57,7 +57,7 @@ Qualisoft\AppBundle\Entity\Users:
         userPhoto:
             type: blob
             column: user_photo
-        userRoleCode:
+        userRole:
             type: string
             length: '20'
             column: user_role
