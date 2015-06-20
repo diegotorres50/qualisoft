@@ -14,9 +14,9 @@ Qualisoft\AppBundle\Entity\Users:
             type: string
             length: '15'
             column: user_document
-        userStatusCode:
+        userStatus:
             type: string
-            length: '3'
+            length: '20'
             column: user_status
         userName:
             type: string
