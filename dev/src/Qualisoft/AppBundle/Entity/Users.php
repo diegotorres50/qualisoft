@@ -22,7 +22,7 @@ class Users
     /**
      * @var string
      */
-    private $userStatusCode;
+    private $userStatus;
 
     /**
      * @var string
@@ -82,7 +82,7 @@ class Users
     /**
      * @var string
      */
-    private $userRoleCode;
+    private $userRole;
 
     /**
      * @var string
@@ -152,26 +152,26 @@ class Users
     }
 
     /**
-     * Set userStatusCode
+     * Set userStatus
      *
-     * @param string $userStatusCode
+     * @param string $userStatus
      * @return Users
      */
-    public function setUserStatusCode($userStatusCode)
+    public function setUserStatus($userStatus)
     {
-        $this->userStatusCode = $userStatusCode;
+        $this->userStatus = $userStatus;
 
         return $this;
     }
 
     /**
-     * Get userStatusCode
+     * Get userStatus
      *
      * @return string 
      */
-    public function getUserStatusCode()
+    public function getUserStatus()
     {
-        return $this->userStatusCode;
+        return $this->userStatus;
     }
 
     /**
@@ -428,26 +428,26 @@ class Users
     }
 
     /**
-     * Set userRoleCode
+     * Set userRole
      *
-     * @param string $userRoleCode
+     * @param string $userRole
      * @return Users
      */
-    public function setUserRoleCode($userRoleCode)
+    public function setUserRole($userRole)
     {
-        $this->userRoleCode = $userRoleCode;
+        $this->userRole = $userRole;
 
         return $this;
     }
 
     /**
-     * Get userRoleCode
+     * Get userRole
      *
      * @return string 
      */
-    public function getUserRoleCode()
+    public function getUserRole()
     {
-        return $this->userRoleCode;
+        return $this->userRole;
     }
 
     /**

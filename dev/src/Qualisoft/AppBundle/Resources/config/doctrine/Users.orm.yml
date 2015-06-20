@@ -17,7 +17,7 @@ Qualisoft\AppBundle\Entity\Users:
         userStatusCode:
             type: string
             length: '3'
-            column: user_status_code
+            column: user_status
         userName:
             type: string
             length: '200'
@@ -60,7 +60,7 @@ Qualisoft\AppBundle\Entity\Users:
         userRoleCode:
             type: string
             length: '20'
-            column: user_role_code
+            column: user_role
         userNotes:
             type: text
             column: user_notes
