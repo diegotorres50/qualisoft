@@ -6,6 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route; //@diegotorres50: necesario para las anotaciones de rutas 
 use Symfony\Component\HttpFoundation\Request; //@diegotorres50: necesario para el formulario
 use Symfony\Component\Validator\Constraints\NotBlank; //@diegotorres50: para las restricciones de campos vacios
+use Qualisoft\AppBundle\Model\Model; //@diegotorres50: la logica del negocio para trabajar con mysql
 
 class SecurityController extends Controller
 {
@@ -21,7 +22,6 @@ class SecurityController extends Controller
         {
             return $this->redirect($this->generateUrl('qualisoft_default_homepage'));
         }    
-
 
 	    $defaultData = array('message' => 'Type your message here');
 
@@ -161,6 +161,37 @@ class SecurityController extends Controller
                                     'success_msg',
                                     'Hola ' . $query_result['userName']
                                 );
+
+                        //Insertamos la sesion en la base de datos
+                        $login_values = array(
+                                     'login_user_id' => $query_result['userId'],
+                                     'login_time' => new \DateTime("now"),
+                                     'login_useragent' => 'PENDIENTE',
+                                     'login_language' => 'PENDIENTE',
+                                     'login_platform' => 'PENDIENTE',
+                                     'login_origin' => 'PENDIENTE',
+                                     'login_notes' => 'PENDIENTE'
+                                     );
+
+                        //Instanciamos el modelon de conexion mysql
+                        $m = new Model(
+                            $this->container->getParameter('database_name'), 
+                            $this->container->getParameter('database_user'),
+                            $this->container->getParameter('database_password'),
+                            $this->container->getParameter('database_host')
+                        );
+
+                        //Tratamos de registrar la sesion en la tabla de logins de mysql
+                        $setLogin = $m->setLogin($login_values);
+
+                        if (!empty($setLogin) && is_array($setLogin) && isset($setLogin['errorMsg'])) {
+                            $this->get('session')->getFlashBag()->add(
+                                        'error_msg',
+                                        $setLogin['errorMsg']
+                                    );
+                        }
+                        //Fin de insertamos la sesion en la base de datos
+
 
                        return $this->redirect($this->generateUrl('qualisoft_default_homepage'));
 
