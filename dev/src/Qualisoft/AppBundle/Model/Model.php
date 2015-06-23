@@ -41,7 +41,7 @@ class Model
         
         if(!isset($values) or empty($values) or !is_array($values)) return null;
 
-        $sql = "INSERT INTO `qualisoft_dev`.`logins`
+        $sql = "INSERT INTO `" . $values['database_name'] . "`.`logins`
         (
             `login_user_id`,
             `login_time`,

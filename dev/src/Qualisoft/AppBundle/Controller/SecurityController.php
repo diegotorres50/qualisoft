@@ -164,6 +164,7 @@ class SecurityController extends Controller
 
                         //Insertamos la sesion en la base de datos
                         $login_values = array(
+                                     'database_name' => $this->container->getParameter('database_name'),
                                      'login_user_id' => $query_result['userId'],
                                      'login_time' => new \DateTime("now"),
                                      'login_useragent' => 'PENDIENTE',
