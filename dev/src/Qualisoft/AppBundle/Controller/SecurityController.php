@@ -145,28 +145,15 @@ class SecurityController extends Controller
                     //$qualisoft_users_query=$this->getDoctrine()->getRepository('QualisoftAppBundle:Users')->findOneBy(array("userId"=>$userId,"userPass"=>$userPass));
 
                     /*Validamos que hacer con el usuario*/
-                    if ($query_result) {
+                    if ($query_result) { //Si el usuario existe en la base de datos
 
-                        $session=$request->getSession();
-
-                        $session->set("userId", $query_result['userId']);
-                        $session->set("userName", $query_result['userName']);
-
-                        /* Usando y siguiendo el metodo Cesar Cansino seria asi.
-                        $session->set("userId", $query_result->getuserId());
-                        $session->set("userName", $query_result->getuserName());
-                        */    
-
-                        $this->get('session')->getFlashBag()->add(
-                                    'success_msg',
-                                    'Hola ' . $query_result['userName']
-                                );
+                        $dateTime = new \DateTime("now"); //Para reusar el datetime de la sesion en varios query de mysql
 
                         //Insertamos la sesion en la base de datos
                         $login_values = array(
                                      'database_name' => $this->container->getParameter('database_name'),
                                      'login_user_id' => $query_result['userId'],
-                                     'login_time' => new \DateTime("now"),
+                                     'login_time' => $dateTime,
                                      'login_useragent' => 'PENDIENTE',
                                      'login_language' => 'PENDIENTE',
                                      'login_platform' => 'PENDIENTE',
@@ -190,11 +177,47 @@ class SecurityController extends Controller
                                         'error_msg',
                                         $setLogin['errorMsg']
                                     );
+                        } else { //Si la sesion se inserto correctamente la base de datos, creamos la sesion en el navegador
+
+                            $session=$request->getSession();
+                            $session->set("userId", $query_result['userId']);
+                            $session->set("userName", $query_result['userName']);
+
+                            /* Usando y siguiendo el metodo Cesar Cansino seria asi.
+                            $session->set("userId", $query_result->getuserId());
+                            $session->set("userName", $query_result->getuserName());
+                            */    
+
+                            //Insertamos la sesion en la base de datos
+                            $login_values = array(
+                                         'database_name' => $this->container->getParameter('database_name'),
+                                         'login_user_id' => $query_result['userId'],
+                                         'login_time' => $dateTime
+                                         );
+
+                            //Tratamos de recuperar la sesion en la tabla de logins de mysql
+                            $getLoginId = $m->getLoginId($login_values);
+
+                            if (!empty($getLoginId) && is_array($getLoginId) && isset($getLoginId['errorMsg'])) {
+                                $this->get('session')->getFlashBag()->add(
+                                            'error_msg',
+                                            $getLoginId['errorMsg']
+                                        );
+                            } else {
+                                //Guardamos el id de la sesion para controlar desde base de datos las sesiones de logeo
+                                $session->set("loginId", $getLoginId);
+                            }
+
+                            $this->get('session')->getFlashBag()->add(
+                                        'success_msg',
+                                        'Hola ' . $query_result['userName'] . ' - ' . $getLoginId
+                                );
+
                         }
                         //Fin de insertamos la sesion en la base de datos
 
-
-                       return $this->redirect($this->generateUrl('qualisoft_default_homepage'));
+                        //Devolvemos los datos a la vista
+                        return $this->redirect($this->generateUrl('qualisoft_default_homepage'));
 
                     } else {
 
@@ -208,6 +231,7 @@ class SecurityController extends Controller
                                     'Los datos ingresados no son válidos!'
                                 );
                         
+                        //Devolvemos los datos a la vista
                         return $this->redirect($this->generateUrl('qualisoft_security_login'));
                     }
 
