@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 25-06-2015 a las 02:18:12
+-- Tiempo de generación: 25-06-2015 a las 04:11:08
 -- Versión del servidor: 5.6.24
 -- Versión de PHP: 5.5.24
 
@@ -26,6 +26,23 @@ DELIMITER $$
 --
 -- Procedimientos
 --
+DROP PROCEDURE IF EXISTS `procedure_closeLogin`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `procedure_closeLogin`(IN param_login_id BIGINT(20))
+    DETERMINISTIC
+BEGIN
+	/*procedure_closeLogin() cambia el estado de la sesion a CLOSED
+    */
+    update 
+          logins #Sobre la tabla de sesiones
+    set 
+    	login_status='CLOSED', #Cambiamos el estado a cerrado en la sesion
+        login_notes='THIS SESSION WAS CLOSED BY USER', #Registramos una observacion
+        login_closed=NOW() #Datetime del cierre de la sesion
+    where 
+    	login_id=param_login_id and #El campo id debe coincidir con el parametro de entrada
+        login_status = 'OPENED'; #Y el estado del registro deberia ser una sesion abierta
+END$$
+
 DROP PROCEDURE IF EXISTS `procedure_getLoginId`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `procedure_getLoginId`(IN param_login_user_id VARCHAR(20), IN param_login_time DATETIME, OUT param_login_id BIGINT(20))
     DETERMINISTIC
@@ -60,8 +77,8 @@ CREATE TABLE IF NOT EXISTS `logins` (
   `login_platform` varchar(45) DEFAULT 'UNKNOWN' COMMENT 'Plataforma local del usuario, por ejemplo linux o windows',
   `login_origin` varchar(100) DEFAULT 'UNKNOWN' COMMENT 'Dominio detectado con protocolo, por ejemplo http://www.qualisoft.com',
   `login_closed` datetime DEFAULT '0000-00-00 00:00:00' COMMENT 'Fecha hora del cierre de la sesion',
-  `login_notes` varchar(20) DEFAULT NULL COMMENT 'Nota general de la sesion'
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8 COMMENT='Registro de logins de usuario, conocido igual como registro de sesiones';
+  `login_notes` varchar(50) DEFAULT NULL COMMENT 'Nota general de la sesion'
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8 COMMENT='Registro de logins de usuario, conocido igual como registro de sesiones';
 
 --
 -- RELACIONES PARA LA TABLA `logins`:
@@ -72,7 +89,7 @@ CREATE TABLE IF NOT EXISTS `logins` (
 --
 
 INSERT INTO `logins` (`login_user_id`, `login_time`, `login_id`, `login_status`, `login_useragent`, `login_language`, `login_platform`, `login_origin`, `login_closed`, `login_notes`) VALUES
-('diegotorres50', '2015-06-23 04:44:12', 00000000000000000001, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
+('diegotorres50', '2015-06-23 04:44:12', 00000000000000000001, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-24 20:20:59', 'THIS SESSION WAS CLOSED BY USER'),
 ('diegotorres50', '2015-06-23 05:01:11', 00000000000000000002, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
 ('diegotorres50', '2015-06-23 20:18:34', 00000000000000000003, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
 ('diegotorres50', '2015-06-24 01:30:57', 00000000000000000004, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
@@ -105,7 +122,12 @@ INSERT INTO `logins` (`login_user_id`, `login_time`, `login_id`, `login_status`,
 ('diegotorres50', '2015-06-25 01:41:08', 00000000000000000031, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
 ('diegotorres50', '2015-06-25 01:46:41', 00000000000000000032, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
 ('diegotorres50', '2015-06-25 01:55:43', 00000000000000000033, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
-('diegotorres50', '2015-06-25 02:10:51', 00000000000000000034, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE');
+('diegotorres50', '2015-06-25 02:10:51', 00000000000000000034, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
+('diegotorres50', '2015-06-25 03:48:59', 00000000000000000035, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
+('diegotorres50', '2015-06-25 03:51:22', 00000000000000000036, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
+('diegotorres50', '2015-06-25 03:54:24', 00000000000000000037, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
+('diegotorres50', '2015-06-25 03:56:07', 00000000000000000038, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-24 20:56:16', 'THIS SESSION WAS CLOSED BY USER'),
+('diegotorres50', '2015-06-25 03:59:48', 00000000000000000039, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-24 20:59:54', 'THIS SESSION WAS CLOSED BY USER');
 
 -- --------------------------------------------------------
 
@@ -235,7 +257,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT de la tabla `logins`
 --
 ALTER TABLE `logins`
-  MODIFY `login_id` bigint(20) unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT 'Un indice de secuencia que ayuda a indexar la tabla y a las busquedas de una sesion en particular',AUTO_INCREMENT=35;
+  MODIFY `login_id` bigint(20) unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT 'Un indice de secuencia que ayuda a indexar la tabla y a las busquedas de una sesion en particular',AUTO_INCREMENT=40;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
