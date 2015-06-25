@@ -83,7 +83,6 @@ class Model
         return $result;
      }
 
-
     public function getLoginId($values)
     {
         //@diegotorres50: metodo que recupera el id de la sesion del usuario, esto es en un procedimiento de mysql
@@ -99,7 +98,8 @@ class Model
         $values['login_user_id'] = mysqli_real_escape_string($this->conexion, $values['login_user_id']);
 
         //Ejecutamos el procedimiento
-        $sql .= "call " . $values['database_name'] . ".procedure_getLoginId('" . $values['login_user_id'] . "', '" . $values['login_time']->format('Y-m-d H:i:s') . "', @param_login_id);";
+        //No usemos el nombre de la base de datos para evitar errores: nombrebasededatos. procedure(
+        $sql .= "call procedure_getLoginId('" . $values['login_user_id'] . "', '" . $values['login_time']->format('Y-m-d H:i:s') . "', @param_login_id);";
 
         $sql .= "select @param_login_id as _param_login_id;"; //Recogemos el resultado
 
@@ -126,6 +126,29 @@ class Model
         //mysqli_close($this->conexion); No cerremos la conexion para reusarla    
 
         return $result_row[0];
+     }
+
+    public function closeLogin($values)
+    {
+        //@diegotorres50: metodo que cierra la sesion del usuario en la base de datos, esto es en un procedimiento de mysql
+        //
+        
+        if(!isset($values) || empty($values) || !is_array($values)) 
+            return array('errorMsg' => 'Se esperaba un objeto como parámetro del método');
+
+        //Ejecutamos el procedimiento
+        //No usemos el nombre de la base de datos para evitar errores: nombrebasededatos. procedure(
+        $sql = "call procedure_closeLogin(" . $values['login_id'] . ");";
+
+        $result = mysqli_query($this->conexion, $sql);
+
+        if(!$result) {
+            return array('errorMsg' => 'No ha sido posible cerrar la sesión del usuario: ' . mysqli_error($this->conexion));
+        }
+
+        //mysqli_close($this->conexion); No cerremos la conexion para reusarla    
+
+        return $result;
      }
 
     /*

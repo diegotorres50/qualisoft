@@ -188,15 +188,15 @@ class SecurityController extends Controller
                             $session->set("userName", $query_result->getuserName());
                             */    
 
-                            //Insertamos la sesion en la base de datos
-                            $login_values = array(
+                            //Recuperamos la sesion en la base de datos
+                            $param_values = array(
                                          'database_name' => $this->container->getParameter('database_name'),
                                          'login_user_id' => $query_result['userId'],
                                          'login_time' => $dateTime
                                          );
 
                             //Tratamos de recuperar la sesion en la tabla de logins de mysql
-                            $getLoginId = $m->getLoginId($login_values);
+                            $getLoginId = $m->getLoginId($param_values);
 
                             if (!empty($getLoginId) && is_array($getLoginId) && isset($getLoginId['errorMsg'])) {
                                 $this->get('session')->getFlashBag()->add(
@@ -283,11 +283,35 @@ class SecurityController extends Controller
         //Si la sesion existe, entonces si la limpiamos
         if($session->has("userId"))
         {
-            $session=$request->getSession();
+
+            //Instanciamos el modelo de conexion mysql
+            $m = new Model(
+                $this->container->getParameter('database_name'), 
+                $this->container->getParameter('database_user'),
+                $this->container->getParameter('database_password'),
+                $this->container->getParameter('database_host')
+            );
+
+           //Insertamos la sesion en la base de datos
+            $param_values = array(
+                         'login_id' => $session->get('loginId')
+                         );
+
+            //Tratamos de cerrar la sesion en la tabla de logins de mysql
+            $closeLogin = $m->closeLogin($param_values);
+
+            if (!empty($closeLogin) && is_array($closeLogin) && isset($closeLogin['errorMsg'])) {
+                $this->get('session')->getFlashBag()->add(
+                            'error_msg',
+                            $closeLogin['errorMsg']
+                        );
+            }
+
+            //Cerramos ahora la sesion en el navegador
             $session->clear();
             $this->get('session')->getFlashBag()->add(
                                     'success_msg',
-                                    'Se ha cerrado sessión exitosamente, gracias por visitarnos'
+                                    "Se ha cerrado sessión " . $param_values['login_id'] . " exitosamente, gracias por visitarnos"
                                 );
         }    
 
