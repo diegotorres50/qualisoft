@@ -124,7 +124,7 @@ class SecurityController extends Controller
                      *Definimos la consulta, ver ejemplos: http://doctrine-orm.readthedocs.org/en/latest/reference/query-builder.html y conceptos en
                      *http://gitnacho.github.io/symfony-docs-es/book/doctrine.html
                      */
-                    $qualisoft_users_query = $em->createQuery('SELECT qualisoft_users.userId, qualisoft_users.userName FROM QualisoftAppBundle:Users qualisoft_users WHERE qualisoft_users.userId= :userId_ and qualisoft_users.userPass= :userPass_')
+                    $qualisoft_users_query = $em->createQuery('SELECT qualisoft_users.userId, qualisoft_users.userName, qualisoft_users.userRole FROM QualisoftAppBundle:Users qualisoft_users WHERE qualisoft_users.userId= :userId_ and qualisoft_users.userPass= :userPass_')
                     ->setParameters($parameters)
                     ->setMaxResults(1);
                     
@@ -182,6 +182,7 @@ class SecurityController extends Controller
                             $session=$request->getSession();
                             $session->set("userId", $query_result['userId']);
                             $session->set("userName", $query_result['userName']);
+                            $session->set("userRole", $query_result['userRole']);
 
                             /* Usando y siguiendo el metodo Cesar Cansino seria asi.
                             $session->set("userId", $query_result->getuserId());
@@ -210,7 +211,7 @@ class SecurityController extends Controller
 
                             $this->get('session')->getFlashBag()->add(
                                         'success_msg',
-                                        'Hola ' . $query_result['userName'] . ' - ' . $getLoginId
+                                        'Hola ' . $query_result['userName'] . ' - ' . $getLoginId . ' - ' . $query_result['userRole']
                                 );
 
                         }
