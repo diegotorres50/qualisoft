@@ -1,0 +1,689 @@
+{#
+    @diegotorres50: Esta es la plantilla de la lista de usuarios
+
+    #}
+
+{#Heredamos ek layout con todas las caracteristicas del frontend#}
+{% extends 'QualisoftAppBundle::layout.html.twig' %} 
+
+{#
+    titulo de la pagina
+    #}
+{% block title %}
+    {{ view_info.title }}
+{% endblock %}
+
+{#
+    titulo del modulo
+    #}
+{% block module_title %}
+    {{ view_info.module_title }}
+{% endblock %}    
+
+{#
+    subtitulo del modulo
+    #}
+{% block module_subtitle %}
+    {{ view_info.module_subtitle }}
+{% endblock %}
+
+{#
+    descripcion del modulo
+    #}
+{% block content_lead %}
+    {{ view_info.module_lead }}
+{% endblock %}
+
+{#
+    contenido de la pagina
+    #}
+{% block x_content %}
+
+    {#
+        contenido de las alertas debe ir debtro del content
+        #}
+    {% block content_alerts %}
+
+        {% for flashMessage in app.session.flashbag.get('warning_msg') %}
+
+            {#
+            Incluimos la plantilla de la alerta
+            #}
+            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+                'msgClass': 'alert-warning', 
+                'msgGlyphicon': 'glyphicon-exclamation-sign',
+                'msgTitle': 'Warning!',
+                'msgText': flashMessage }
+                ) 
+            }}
+
+        {% endfor %} 
+
+        {% for flashMessage in app.session.flashbag.get('info_msg') %}
+
+            {#
+            Incluimos la plantilla de la alerta
+            #}
+            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+                'msgClass': 'alert-info', 
+                'msgTitle': 'Info',
+                'msgText': flashMessage }
+                ) 
+            }}
+
+        {% endfor %}
+
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+
+            {#
+            Incluimos la plantilla de la alerta
+            #}
+            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+                'msgClass': 'alert-danger', 
+                'msgGlyphicon': 'glyphicon-exclamation-sign',
+                'msgTitle': 'Error!',
+                'msgText': flashMessage }
+                ) 
+            }}        
+
+        {% endfor %} 
+
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+
+            {#
+            Incluimos la plantilla de la alerta
+            #}
+            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+                'msgClass': 'alert-success', 
+                'msgTitle': ':)',
+                'msgText': flashMessage }
+                ) 
+            }} 
+
+        {% endfor %}                
+
+    {% endblock %}
+
+    {#
+    Aqui va el contenido principal
+    #}
+
+<div id="example_length" class="dataTables_length"><label>Show <select size="1" style="width: 56px;padding: 6px;" name="example_length" aria-controls="example"><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> entries</label></div>
+<div class="dataTables_filter" id="example_filter"><label>Search all columns: <input type="text" aria-controls="example"></label></div>   
+<table id="example" class="table table-striped responsive-utilities jambo_table">
+    <thead>
+        <tr class="headings">
+            <th>
+                <input type="checkbox" class="tableflat">
+            </th>
+            <th>Invoice </th>
+            <th>Invoice Date </th>
+            <th>Order </th>
+            <th>Bill to Name </th>
+            <th>Status </th>
+            <th>Amount </th>
+            <th class=" no-link last"><span class="nobr">Action</span>
+            </th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr class="even pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000040</td>
+            <td class=" ">May 23, 2014 11:47:56 PM </td>
+            <td class=" ">121000210 <i class="success fa fa-long-arrow-up"></i>
+            </td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$7.45</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000039</td>
+            <td class=" ">May 23, 2014 11:30:12 PM</td>
+            <td class=" ">121000208 <i class="success fa fa-long-arrow-up"></i>
+            </td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$741.20</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="even pointer selected">
+            <td class="a-center ">
+                <input type="checkbox" checked class="tableflat">
+            </td>
+            <td class=" ">121000038</td>
+            <td class=" ">May 24, 2014 10:55:33 PM</td>
+            <td class=" ">121000203 <i class="success fa fa-long-arrow-up"></i>
+            </td>
+            <td class=" ">Mike Smith</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$432.26</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000037</td>
+            <td class=" ">May 24, 2014 10:52:44 PM</td>
+            <td class=" ">121000204</td>
+            <td class=" ">Mike Smith</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$333.21</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="even pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000040</td>
+            <td class=" ">May 24, 2014 11:47:56 PM </td>
+            <td class=" ">121000210</td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$7.45</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000039</td>
+            <td class=" ">May 26, 2014 11:30:12 PM</td>
+            <td class=" ">121000208 <i class="error fa fa-long-arrow-down"></i>
+            </td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$741.20</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="even pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000038</td>
+            <td class=" ">May 26, 2014 10:55:33 PM</td>
+            <td class=" ">121000203</td>
+            <td class=" ">Mike Smith</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$432.26</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000037</td>
+            <td class=" ">May 26, 2014 10:52:44 PM</td>
+            <td class=" ">121000204</td>
+            <td class=" ">Mike Smith</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$333.21</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+
+        <tr class="even pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000040</td>
+            <td class=" ">May 27, 2014 11:47:56 PM </td>
+            <td class=" ">121000210</td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$7.45</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000039</td>
+            <td class=" ">May 28, 2014 11:30:12 PM</td>
+            <td class=" ">121000208</td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$741.20</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="even pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000040</td>
+            <td class=" ">May 23, 2014 11:47:56 PM </td>
+            <td class=" ">121000210 <i class="success fa fa-long-arrow-up"></i>
+            </td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$7.45</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000039</td>
+            <td class=" ">May 23, 2014 11:30:12 PM</td>
+            <td class=" ">121000208 <i class="success fa fa-long-arrow-up"></i>
+            </td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$741.20</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="even pointer selected">
+            <td class="a-center ">
+                <input type="checkbox" checked class="tableflat">
+            </td>
+            <td class=" ">121000038</td>
+            <td class=" ">May 24, 2014 10:55:33 PM</td>
+            <td class=" ">121000203 <i class="success fa fa-long-arrow-up"></i>
+            </td>
+            <td class=" ">Mike Smith</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$432.26</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000037</td>
+            <td class=" ">May 24, 2014 10:52:44 PM</td>
+            <td class=" ">121000204</td>
+            <td class=" ">Mike Smith</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$333.21</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="even pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000040</td>
+            <td class=" ">May 24, 2014 11:47:56 PM </td>
+            <td class=" ">121000210</td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$7.45</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000039</td>
+            <td class=" ">May 26, 2014 11:30:12 PM</td>
+            <td class=" ">121000208 <i class="error fa fa-long-arrow-down"></i>
+            </td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$741.20</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="even pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000038</td>
+            <td class=" ">May 26, 2014 10:55:33 PM</td>
+            <td class=" ">121000203</td>
+            <td class=" ">Mike Smith</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$432.26</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000037</td>
+            <td class=" ">May 26, 2014 10:52:44 PM</td>
+            <td class=" ">121000204</td>
+            <td class=" ">Mike Smith</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$333.21</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+
+        <tr class="even pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000040</td>
+            <td class=" ">May 27, 2014 11:47:56 PM </td>
+            <td class=" ">121000210</td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$7.45</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000039</td>
+            <td class=" ">May 28, 2014 11:30:12 PM</td>
+            <td class=" ">121000208</td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$741.20</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="even pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000040</td>
+            <td class=" ">May 23, 2014 11:47:56 PM </td>
+            <td class=" ">121000210 <i class="success fa fa-long-arrow-up"></i>
+            </td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$7.45</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000039</td>
+            <td class=" ">May 23, 2014 11:30:12 PM</td>
+            <td class=" ">121000208 <i class="success fa fa-long-arrow-up"></i>
+            </td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$741.20</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="even pointer selected">
+            <td class="a-center ">
+                <input type="checkbox" checked class="tableflat">
+            </td>
+            <td class=" ">121000038</td>
+            <td class=" ">May 24, 2014 10:55:33 PM</td>
+            <td class=" ">121000203 <i class="success fa fa-long-arrow-up"></i>
+            </td>
+            <td class=" ">Mike Smith</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$432.26</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000037</td>
+            <td class=" ">May 24, 2014 10:52:44 PM</td>
+            <td class=" ">121000204</td>
+            <td class=" ">Mike Smith</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$333.21</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="even pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000040</td>
+            <td class=" ">May 24, 2014 11:47:56 PM </td>
+            <td class=" ">121000210</td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$7.45</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000039</td>
+            <td class=" ">May 26, 2014 11:30:12 PM</td>
+            <td class=" ">121000208 <i class="error fa fa-long-arrow-down"></i>
+            </td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$741.20</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="even pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000038</td>
+            <td class=" ">May 26, 2014 10:55:33 PM</td>
+            <td class=" ">121000203</td>
+            <td class=" ">Mike Smith</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$432.26</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000037</td>
+            <td class=" ">May 26, 2014 10:52:44 PM</td>
+            <td class=" ">121000204</td>
+            <td class=" ">Mike Smith</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$333.21</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+
+        <tr class="even pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000040</td>
+            <td class=" ">May 27, 2014 11:47:56 PM </td>
+            <td class=" ">121000210</td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$7.45</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000039</td>
+            <td class=" ">May 28, 2014 11:30:12 PM</td>
+            <td class=" ">121000208</td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$741.20</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="even pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000040</td>
+            <td class=" ">May 23, 2014 11:47:56 PM </td>
+            <td class=" ">121000210 <i class="success fa fa-long-arrow-up"></i>
+            </td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$7.45</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000039</td>
+            <td class=" ">May 23, 2014 11:30:12 PM</td>
+            <td class=" ">121000208 <i class="success fa fa-long-arrow-up"></i>
+            </td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$741.20</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="even pointer selected">
+            <td class="a-center ">
+                <input type="checkbox" checked class="tableflat">
+            </td>
+            <td class=" ">121000038</td>
+            <td class=" ">May 24, 2014 10:55:33 PM</td>
+            <td class=" ">121000203 <i class="success fa fa-long-arrow-up"></i>
+            </td>
+            <td class=" ">Mike Smith</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$432.26</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000037</td>
+            <td class=" ">May 24, 2014 10:52:44 PM</td>
+            <td class=" ">121000204</td>
+            <td class=" ">Mike Smith</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$333.21</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="even pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000040</td>
+            <td class=" ">May 24, 2014 11:47:56 PM </td>
+            <td class=" ">121000210</td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$7.45</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000039</td>
+            <td class=" ">May 26, 2014 11:30:12 PM</td>
+            <td class=" ">121000208 <i class="error fa fa-long-arrow-down"></i>
+            </td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$741.20</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="even pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000038</td>
+            <td class=" ">May 26, 2014 10:55:33 PM</td>
+            <td class=" ">121000203</td>
+            <td class=" ">Mike Smith</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$432.26</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000037</td>
+            <td class=" ">May 26, 2014 10:52:44 PM</td>
+            <td class=" ">121000204</td>
+            <td class=" ">Mike Smith</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$333.21</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+
+        <tr class="even pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000040</td>
+            <td class=" ">May 27, 2014 11:47:56 PM </td>
+            <td class=" ">121000210</td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$7.45</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+        <tr class="odd pointer">
+            <td class="a-center ">
+                <input type="checkbox" class="tableflat">
+            </td>
+            <td class=" ">121000039</td>
+            <td class=" ">May 28, 2014 11:30:12 PM</td>
+            <td class=" ">121000208</td>
+            <td class=" ">John Blank L</td>
+            <td class=" ">Paid</td>
+            <td class="a-right a-right ">$741.20</td>
+            <td class=" last"><a href="#">View</a>
+            </td>
+        </tr>
+    </tbody>
+
+</table>
+<div class="dataTables_info" id="example_info">Showing 1 to 12 of 40 entries</div>
+<div class="dataTables_paginate paging_full_numbers" id="example_paginate"><a tabindex="0" class="first paginate_button paginate_button_disabled" id="example_first">First</a><a tabindex="0" class="previous paginate_button paginate_button_disabled" id="example_previous">Previous</a><span><a tabindex="0" class="paginate_active">1</a><a tabindex="0" class="paginate_button">2</a><a tabindex="0" class="paginate_button">3</a><a tabindex="0" class="paginate_button">4</a></span><a tabindex="0" class="next paginate_button" id="example_next">Next</a><a tabindex="0" class="last paginate_button" id="example_last">Last</a></div>
+
+{% endblock %}
+
+
+{#
+    Incluimos en el footer la logica del validator
+    #}
+{% block footer_javascripts %}
+
+    {{ parent() }}
+
+
+
+{% endblock %}
