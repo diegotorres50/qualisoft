@@ -151,6 +151,126 @@ class Model
         return $result;
      }
 
+    public function getDataFromSingleTable($values)
+    {
+        //@diegotorres50: metodo que consulta una unica tabla, reusable
+        //
+        
+        if(!isset($values) || empty($values) || !is_array($values)) 
+            return array('errorMsg' => 'Se esperaba un objeto como parámetro del método');
+
+        /* Estructura del parametro esperado
+        $values['TABLE'] = 'Users';
+
+        $values['FIELDS'] = array( //identificador_campo => aliascustomizado_campo
+            'user_id' => 'id',
+            'user_document' => 'documento',
+            'user_status' => 'estado',
+            'user_name' => 'nombre',
+            'user_mail' => 'mail',
+            'user_language' => 'idioma',
+            'user_lastactivation' => 'activado_desde',
+            'user_role' => 'perfil'
+            );
+
+        $values['WHERE'] = 'WHERE user_id = \'diegotorres50\'';
+
+        $values['ORDER_BY'] = array( 
+            'user_id desc'
+            );
+
+        $values['LIMIT'] = array( 
+            'OFFSET' => 0, //Desde la fila
+            'ROW_COUNT' => 1 //Cantidad
+            );        
+
+        */
+       
+        $sql = array();
+        $sql_rows_total = array();
+
+        //Query para consultas
+        $sql[] = "SELECT";
+        $sql_rows_total[] = "SELECT COUNT(*) AS TOTAL";
+
+        //Si se especifica paginar la consulta
+        if(isset($values['FIELDS']) && !empty($values['FIELDS']) && is_array($values['FIELDS'])) {
+            $values['FIELDS'] = implode(",", array_keys($values['FIELDS']));
+            $sql[] = $values['FIELDS'];
+        } else {
+            $sql[] = "*"; //Por defecto trae todos los campos
+        }   
+        
+        $sql[] = "FROM";
+        $sql_rows_total[] = "FROM";
+
+        $sql[] = $values['TABLE'];
+        $sql_rows_total[] = $values['TABLE'];
+
+        //Si se especifica criterios de consulta
+        if(isset($values['WHERE']) && !empty($values['WHERE'])) {
+            $sql[] = $values['WHERE'];
+            $sql_rows_total[] = $values['WHERE'];
+        }        
+
+        //Si se especifica ordenar la consulta
+        if(isset($values['ORDER_BY']) && !empty($values['ORDER_BY']) && is_array($values['ORDER_BY'])) {
+            $values['ORDER_BY'] = implode(",", $values['ORDER_BY']);
+            $sql[] = 'ORDER BY ' . $values['ORDER_BY'];
+        } else {
+            $sql[] = 'ORDER BY 1 DESC'; //Ordenar por defecto por la primera columna descendente
+        }
+
+        //Si se especifica paginar la consulta
+        if(isset($values['LIMIT']) && !empty($values['LIMIT']) && is_array($values['LIMIT'])) {
+            $sql[] = "LIMIT " . $values['LIMIT']['OFFSET'] . ", " . $values['LIMIT']['ROW_COUNT'];
+        }         
+
+        //Armamos la consulta completa con espacios engtre los segmentos del query
+        $sql = implode(" ", $sql);
+        $sql_rows_total = implode(" ", $sql_rows_total);
+
+        $result = mysqli_query($this->conexion, $sql);
+        $result_sql_rows_total = mysqli_query($this->conexion, $sql_rows_total);
+
+        if(!$result || !$result_sql_rows_total) {
+
+            return array('errorMsg' => 'No ha sido posible realizar la consulta de ' . $values['TABLE'] . ': ' . mysqli_error($this->conexion));
+        }
+
+
+        // Numeric array
+        //$row=mysqli_fetch_array($result,MYSQLI_NUM);
+        //printf ("%s (%s)\n",$row[0],$row[1]);
+
+        // Associative array
+        //$row=mysqli_fetch_array($result,MYSQLI_ASSOC);
+        //printf ("%s (%s)\n",$row["user_id"],$row["user_role"]);
+
+        $rows_found = array();
+        while ($row = mysqli_fetch_assoc($result))
+        {
+           $rows_found[] = $row;
+        }
+
+        // Free result set
+        mysqli_free_result($result);
+
+        $rows_total=mysqli_fetch_array($result_sql_rows_total,MYSQLI_ASSOC);
+
+        // Free result set
+        mysqli_free_result($result_sql_rows_total);        
+        
+        //mysqli_close($this->conexion); No cerremos la conexion para reusarla    
+
+        $data = array(
+            'rows_found' => $rows_found, //Todas las filas
+            'total' => $rows_total["TOTAL"] //La cantidad de filas
+            );
+
+        return $data;
+     }
+
     /*
 
     @diegotorres50: estos son metodos dummy
