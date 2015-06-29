@@ -93,6 +93,38 @@
                         <!-- @diegotorres50 para otros bloques de menu categorizados, duplique <div class="menu_section"> y
                         entre <h3> indique el nombre de ese bloques de menus.
                         //-->
+
+                        {#
+                        Incluimos la plantilla del menu de usuarios
+                        #}
+
+                        {% 
+                            set data = {
+                                0: {
+                                    'menu_label': 'Maestros',
+                                    'submenus': {
+                                                    0: {
+                                                        'submenu_label': 'Usuarios',
+                                                        'submenu_class': 'home',
+                                                        'submenu_paths': {
+                                                                            0: {
+                                                                                'url_path': 'qualisoft_admin_user_list',
+                                                                                'lbl_path': 'Ver lista'
+                                                                                } 
+                                                                        }        
+                                                    }
+                                                 }   
+
+                                    }
+                                }  
+                        %}
+
+                        {{ include('QualisoftAppBundle:Layout:menu_section.html.twig', { 
+                            'data': data 
+                            }
+                            ) 
+                        }}
+
                         {% endblock %}
 
                     </div>

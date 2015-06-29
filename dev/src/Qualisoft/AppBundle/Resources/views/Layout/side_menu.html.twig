@@ -1,0 +1,12 @@
+<li><a><i class="fa fa-{{ data.submenu_class }}"></i> {{ data.submenu_label }} <span class="fa fa-chevron-down"></span></a>
+    <ul class="nav child_menu" style="display: none">
+
+        {% for url in data.submenu_paths %}
+            <li><a href="{{ path(url.url_path) }}">{{ url.lbl_path }}</a></li>
+        {% endfor %}
+
+    </ul>
+</li>
+<!-- @diegotorres50: copiar el bloque <li><a><i class="fa fa-xxx"> para agregar mas sub menus, aqui la clase 'fa-home'
+se usa para personalizar el icono del modulo.
+//-->

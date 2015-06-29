@@ -12,7 +12,7 @@ use Qualisoft\AppBundle\Model\Model; //@diegotorres50: la logica del negocio par
 class UserController extends Controller
 {
 	 /**
-     * @Route("admin/user", name="qualisoft_admin_user_homepage") 
+     * @Route("admin/user", name="qualisoft_admin_user_list") 
      */
     public function indexAction(Request $request)
     {

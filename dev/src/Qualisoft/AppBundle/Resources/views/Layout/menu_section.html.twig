@@ -1,0 +1,17 @@
+{% for _data in data %}
+
+    <div class="menu_section">
+        <h3>{{ _data.menu_label }}</h3>
+        <ul class="nav side-menu">
+            {% for submenu in _data.submenus %}
+
+                {{ include('QualisoftAppBundle:Layout:side_menu.html.twig', { 'data': submenu }) }}
+
+            {% endfor %}    
+        </ul>
+    </div>
+    <!-- @diegotorres50 para otros bloques de menu categorizados, duplique <div class="menu_section"> y
+    entre <h3> indique el nombre de ese bloques de menus.
+    //-->
+
+{% endfor %}
