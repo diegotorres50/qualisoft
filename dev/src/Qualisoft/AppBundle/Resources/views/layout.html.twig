@@ -94,6 +94,7 @@
                         entre <h3> indique el nombre de ese bloques de menus.
                         //-->
 
+                        {% if app.session.get('userId') %} {#si existe la sesion, mostramos este modulo de informacion de usuario #}
                         {#
                         Incluimos la plantilla del menu de usuarios
                         #}
@@ -124,6 +125,8 @@
                             }
                             ) 
                         }}
+
+                    {% endif %}
 
                         {% endblock %}
 

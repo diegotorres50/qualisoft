@@ -12,9 +12,9 @@ use Qualisoft\AppBundle\Model\Model; //@diegotorres50: la logica del negocio par
 class UserController extends Controller
 {
 	 /**
-     * @Route("admin/user", name="qualisoft_admin_user_list") 
+     * @Route("admin/user/list/{offset}/{row_count}", name="qualisoft_admin_user_list", requirements={"offset" = "\d+", "row_count" = "\d+"}, defaults={"offset" = 0, "row_count" = 5})   
      */
-    public function indexAction(Request $request)
+    public function indexAction(Request $request, $offset, $row_count)
     {
         //SOLO PARA USUARIOS MASTER
 
@@ -95,8 +95,8 @@ class UserController extends Controller
 
         //OJO, ESTO DEBE SER PARAMETROS DEL ROUTE
         $values['LIMIT'] = array( 
-            'OFFSET' => 0, //Desde la fila
-            'ROW_COUNT' => 2 //Cantidad
+            'OFFSET' => $offset, //Desde la fila
+            'ROW_COUNT' => $row_count //Cantidad
             );
         //Tratamos de consultar la lista de usuarios en la tabla de mysql
         $getUsersList = $m->getDataFromSingleTable($values);
@@ -117,7 +117,8 @@ class UserController extends Controller
                 'view_info' => $view_info,
                 'rows_found' => $getUsersList['rows_found'],
                 'total' => $getUsersList['total'],
-                'cols' => array_values($values['FIELDS']) //odd even
+                'cols' => array_values($values['FIELDS']), //odd even
+                'pages_total' => ceil($getUsersList['total'] / $row_count)
                 )
             );
     }
