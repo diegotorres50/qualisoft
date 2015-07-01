@@ -63,7 +63,7 @@ class UserController extends Controller
                     'module_lead' => 'Modifique el usuario.', 
                     );
 
-        //Instanciamos el modelo de conexion mysql
+        //Instanciamos el modelo de conexion mysql usando el modelo de conexion
         $m = new Model(
             $this->container->getParameter('database_name'), 
             $this->container->getParameter('database_user'),
@@ -71,10 +71,13 @@ class UserController extends Controller
             $this->container->getParameter('database_host')
         );
 
+        //Seteamos en un array los parametros del query para mysql
         $values = array();
 
+        //Seteamos que tabla vamos a consultar
         $values['TABLE'] = 'Users';
 
+        //Seteamos los alias de los campos de deseamos traer en el query y un lbl para la vista
         $values['FIELDS'] = array( //identificador_campo => aliascustomizado_campo
             'user_id' => 'id',
             'user_document' => 'documento',
@@ -86,21 +89,23 @@ class UserController extends Controller
             'user_role' => 'perfil'
             );
 
-        //$values['WHERE'] = 'WHERE user_id = \'diegotorres50\'';
+        //$values['WHERE'] = 'WHERE user_id = \'diegotorres50\''; //Esto no es necesario
 
-        //OJO, ESTO DEBE SER PARAMETROS DEL ROUTE
+        //Seteamos el ordenamiento por defecto del query
         $values['ORDER_BY'] = array( 
-            'user_id desc'
+            'user_id desc' //ordenar por id para traerlo alfabeticamente
             );
 
-        //OJO, ESTO DEBE SER PARAMETROS DEL ROUTE
+        //Seteamos el paginador de la consulta para mysql
         $values['LIMIT'] = array( 
-            'OFFSET' => $offset, //Desde la fila
-            'ROW_COUNT' => $row_count //Cantidad
+            'OFFSET' => $offset, //Desde la fila que se desea mostrar. Esto es un parametro de la ruta
+            'ROW_COUNT' => $row_count //Cantidad maximo de registros a traer. Esto es un parametro de la ruta
             );
+
         //Tratamos de consultar la lista de usuarios en la tabla de mysql
         $getUsersList = $m->getDataFromSingleTable($values);
 
+        //Si el query falla mostramos un error
         if (!empty($getUsersList) && is_array($getUsersList) && isset($getUsersList['errorMsg'])) {
             $this->get('session')->getFlashBag()->add(
                         'error_msg',
@@ -108,17 +113,25 @@ class UserController extends Controller
                     );
         }    
 
-        //var_dump($getUsersList['rows_found']); exit;
+        //Si no hay registros, mostramos un warning
+        if (isset($getUsersList['rows_found']) && empty($getUsersList['rows_found'])) {
+            $this->get('session')->getFlashBag()->add(
+                        'warning_msg',
+                        'No se encontraron registros.'
+                    );
+        } 
 
         // ... renderiza la vista ...
         // OJO, CUANDO SE USA MAS DE DOS NIVELES DE DIRECTORIOS, SE DEBE USAR EL SLASH /
         return $this->render('QualisoftAppBundle:Admin/User:list.html.twig', 
             array(
-                'view_info' => $view_info,
-                'rows_found' => $getUsersList['rows_found'],
-                'total' => $getUsersList['total'],
-                'cols' => array_values($values['FIELDS']), //odd even
-                'pages_total' => ceil($getUsersList['total'] / $row_count)
+                'view_info' => $view_info, //Datos estaticos y generales informativos de la vista
+                'rows_found' => $getUsersList['rows_found'], //Aaray de filas encontradas del query
+                'total' => $getUsersList['total'], //Total de registros en la tabla sin limitar
+                'cols' => array_values($values['FIELDS']), //Nombres de campos que se muestran en la grilla
+                'pages_total' => ceil($getUsersList['total'] / $row_count), //Paginacion: total de paginas que agrupan los registros en la vista
+                'current_page' => ceil(($offset + 1) / $row_count), //Pagina actual o grupo actual del paginador para destacar la pagina actual en la vista
+                'page_records' => $row_count //Paginacion: cantidad de registros que se muestran por pagina
                 )
             );
     }

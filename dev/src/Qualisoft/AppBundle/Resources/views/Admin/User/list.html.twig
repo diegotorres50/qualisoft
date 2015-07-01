@@ -108,13 +108,32 @@
     Aqui va el contenido principal
     #}
 
-    <div id="example_length" class="dataTables_length"><label>Mostrar <select size="1" style="width: 56px;padding: 6px;" name="example_length" aria-controls="example"><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> entries</label></div>
-    <div class="dataTables_filter" id="example_filter"><label>Search all columns: <input type="text" aria-controls="example"></label></div>   
+    <div id="example_length" class="dataTables_length">
+        <label>
+            Mostrar 
+            <select size="1" style="width: 56px;padding: 6px;" name="example_length" aria-controls="example">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+             entries
+         </label>
+     </div>
+    <div class="dataTables_filter" id="example_filter">
+        <label>
+            Buscar todos los campos: 
+            <input type="text" aria-controls="example">
+        </label>
+        <a tabindex="0" class="btn btn-primary" id="example_first">Buscar</a>
+    </div>   
     
+    {% if rows_found %} {#En caso de no haber registros encontrados no mostrar la grilla#}
+
     <table id="example" class="table table-striped responsive-utilities jambo_table">
         <thead>
             <tr class="headings">
-
+                {#Renderizamos las columnas que queremos mostrar en la grilla#}
                 {% for col in cols %}
                     <th>{{ col }}</th>
                 {% endfor %}
@@ -123,9 +142,11 @@
         </thead>
 
         <tbody>
+            {#Renderizamos los registros encontrados en la grilla, aqui las filas#}
             {% for row in rows_found %}
                 <tr class="even pointer">
 
+                    {#Renderizamos los registros encontrados en la grilla, aqui las columnas#}
                     {% for col in row %}
                         <td class=" ">{{ col }}</td>
                     {% endfor %}    
@@ -136,18 +157,18 @@
         </tbody>
 
     </table>
+    {#Aqui el footer informaltivo de la grilla#}
     <div class="dataTables_info" id="example_info">{{ rows_found|length }} de {{ total }} registros en {{ pages_total }} páginas</div>
     <div class="dataTables_paginate paging_full_numbers" id="example_paginate">
-        <a tabindex="0" class="first paginate_button paginate_button_disabled" id="example_first">First</a>
-        <a tabindex="0" class="previous paginate_button paginate_button_disabled" id="example_previous">Previous</a>
         <span>
+            {#Renderizamos el paginador de la grilla#}
             {% for i in 1..pages_total %}
-                <a tabindex="0" class="paginate_button" href="{{ path('qualisoft_admin_user_list', { 'offset': i - 1 }) }}">{{ i }}</a> {#paginate_active para el page activo#}
+                <a tabindex="0" class="paginate_{% if current_page == i %}{{'active'}}{% else %}{{'button'}} {% endif %}" href="{{ path('qualisoft_admin_user_list', { 'offset': (i - 1) * page_records }) }}">{{ i }}</a> 
             {% endfor %}    
         </span>
-        <a tabindex="0" class="next paginate_button" id="example_next">Next</a>
-        <a tabindex="0" class="last paginate_button" id="example_last">Last</a>
     </div>
+
+{% endif %}
 
 {% endblock %}
 
