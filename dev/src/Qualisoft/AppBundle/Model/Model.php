@@ -226,7 +226,7 @@ class Model
             $sql[] = "LIMIT " . $values['LIMIT']['OFFSET'] . ", " . $values['LIMIT']['ROW_COUNT'];
         }         
 
-        //Armamos la consulta completa con espacios engtre los segmentos del query
+        //Armamos la consulta completa con espacios entre los segmentos del query
         $sql = implode(" ", $sql);
         $sql_rows_total = implode(" ", $sql_rows_total);
 
@@ -267,6 +267,63 @@ class Model
             'rows_found' => $rows_found, //Todas las filas
             'total' => $rows_total["TOTAL"] //La cantidad de filas
             );
+
+        return $data;
+     }
+
+    public function getCentersByUser($values)
+    {
+        //@diegotorres50: metodo que consulta los centros de un usuario
+        //
+        
+        if(!isset($values) || empty($values) || !is_array($values)) 
+            return array('errorMsg' => 'Se esperaba un objeto como parámetro del método');
+       
+        $sql = array();
+
+        //Query para consultas
+        $sql[] = "SELECT centers.center_id, centers.center_name";
+        $sql[] = "FROM Users, users_x_centers, centers";
+        $sql[] = "WHERE";
+        $sql[] = "Users.user_id = users_x_centers.users_x_centers_user_id and";
+        $sql[] = "users_x_centers.users_x_centers_center_id = centers.center_id and";
+        $sql[] = "Users.user_id = '" . $values['USER_ID'] . "' and";
+        $sql[] = "centers.center_status = 'ACTIVE' and";
+        $sql[] = "Users.user_status = 'ACTIVE'";
+        $sql[] = "order by Users.user_id asc, centers.center_id asc";
+
+        //Armamos la consulta completa con espacios entre los segmentos del query
+        $sql = implode(" ", $sql);
+
+        $result = mysqli_query($this->conexion, $sql);
+
+        if(!$result) {
+
+            return array('errorMsg' => 'No ha sido posible realizar la consulta de centros de usuario: ' . mysqli_error($this->conexion));
+        }
+
+
+        // Numeric array
+        //$row=mysqli_fetch_array($result,MYSQLI_NUM);
+        //printf ("%s (%s)\n",$row[0],$row[1]);
+
+        // Associative array
+        //$row=mysqli_fetch_array($result,MYSQLI_ASSOC);
+        //printf ("%s (%s)\n",$row["user_id"],$row["user_role"]);
+
+        $rows_found = array();
+
+        while ($row = mysqli_fetch_assoc($result))
+        {
+           $rows_found[] = $row;
+        }
+
+        // Free result set
+        mysqli_free_result($result);  
+        
+        //mysqli_close($this->conexion); No cerremos la conexion para reusarla    
+
+        $data = array($rows_found); //Todas las filas
 
         return $data;
      }

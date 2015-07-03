@@ -217,6 +217,22 @@ class SecurityController extends Controller
                         }
                         //Fin de insertamos la sesion en la base de datos
 
+                        //Tratamos de recuperar las empresas (centers) del usuario en mysql
+                        $getCentersByUser = $m->getCentersByUser(array('USER_ID' => $query_result['userId']));
+
+                        if (!empty($getCentersByUser) && is_array($getCentersByUser) && isset($getCentersByUser['errorMsg'])) {
+                            $this->get('session')->getFlashBag()->add(
+                                        'error_msg',
+                                        $getCentersByUser['errorMsg']
+                                    );
+                        } else {
+                            //Guardamos el array de empresas asociadas al usuario en una sesion
+                            $session->set("centersByUser", $getCentersByUser);
+                        }
+
+
+                        //var_dump($session->get("centersByUser")); exit;
+
                         //Devolvemos los datos a la vista
                         return $this->redirect($this->generateUrl('qualisoft_default_homepage'));
 
