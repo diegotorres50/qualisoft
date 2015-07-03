@@ -27,7 +27,7 @@ DELIMITER $$
 -- Procedimientos
 --
 DROP PROCEDURE IF EXISTS `procedure_closeLogin`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `procedure_closeLogin`(IN param_login_id BIGINT(20))
+CREATE DEFINER=`diego_torres`@`localhost` PROCEDURE `procedure_closeLogin`(IN param_login_id BIGINT(20))
     DETERMINISTIC
 BEGIN
 	/*procedure_closeLogin() cambia el estado de la sesion a CLOSED
@@ -44,7 +44,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `procedure_findAll`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `procedure_findAll`( IN `tableName` VARCHAR( 28 ) , IN `search` TEXT )
+CREATE DEFINER=`diego_torres`@`localhost` PROCEDURE `procedure_findAll`( IN `tableName` VARCHAR( 28 ) , IN `search` TEXT )
 BEGIN
 
  DECLARE finished INT DEFAULT FALSE ;
@@ -74,7 +74,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `procedure_getLoginId`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `procedure_getLoginId`(IN param_login_user_id VARCHAR(20), IN param_login_time DATETIME, OUT param_login_id BIGINT(20))
+CREATE DEFINER=`diego_torres`@`localhost` PROCEDURE `procedure_getLoginId`(IN param_login_user_id VARCHAR(20), IN param_login_time DATETIME, OUT param_login_id BIGINT(20))
     DETERMINISTIC
 BEGIN
 	select distinct(login_id) #Traemos el identificador de la sesion, el cual es el unico campo que nos interesa obtener en este procedimiento
@@ -87,7 +87,7 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `procedure_getUserName`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `procedure_getUserName`(IN _userId VARCHAR(20), OUT _userName VARCHAR(200))
+CREATE DEFINER=`diego_torres`@`localhost` PROCEDURE `procedure_getUserName`(IN _userId VARCHAR(20), OUT _userName VARCHAR(200))
     DETERMINISTIC
 BEGIN
 
