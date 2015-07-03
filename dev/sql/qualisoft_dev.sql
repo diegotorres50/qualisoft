@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 25-06-2015 a las 04:11:08
+-- Tiempo de generación: 03-07-2015 a las 04:05:17
 -- Versión del servidor: 5.6.24
 -- Versión de PHP: 5.5.24
 
@@ -43,6 +43,36 @@ BEGIN
         login_status = 'OPENED'; #Y el estado del registro deberia ser una sesion abierta
 END$$
 
+DROP PROCEDURE IF EXISTS `procedure_findAll`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `procedure_findAll`( IN `tableName` VARCHAR( 28 ) , IN `search` TEXT )
+BEGIN
+
+ DECLARE finished INT DEFAULT FALSE ;
+       DECLARE columnName VARCHAR ( 28 ) ;
+       DECLARE stmtFields TEXT ;
+       DECLARE columnNames CURSOR FOR
+              SELECT DISTINCT `COLUMN_NAME` FROM `information_schema`.`COLUMNS`
+              WHERE `TABLE_NAME` = tableName ORDER BY `ORDINAL_POSITION` ;
+       DECLARE CONTINUE HANDLER FOR NOT FOUND SET finished = TRUE;
+       SET stmtFields = '' ;
+       OPEN columnNames ;
+       readColumns: LOOP
+              FETCH columnNames INTO columnName ;
+              IF finished THEN
+                     LEAVE readColumns ;
+              END IF;
+              SET stmtFields = CONCAT(
+                     stmtFields , IF ( LENGTH( stmtFields ) > 0 , ' OR' , ''  ) ,
+                     ' `', tableName ,'`.`' , columnName , '` REGEXP "' , search , '"'
+              ) ;
+       END LOOP;
+       SET @stmtQuery := CONCAT ( 'SELECT * FROM `' , tableName , '` WHERE ' , stmtFields ) ;
+       PREPARE stmt FROM @stmtQuery ;
+       EXECUTE stmt ;
+       CLOSE columnNames ;
+
+END$$
+
 DROP PROCEDURE IF EXISTS `procedure_getLoginId`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `procedure_getLoginId`(IN param_login_user_id VARCHAR(20), IN param_login_time DATETIME, OUT param_login_id BIGINT(20))
     DETERMINISTIC
@@ -56,14 +86,73 @@ BEGIN
         order by login_user_id, login_time; #Ordenando por el user_id y el datetime cuando se creo el login o sesion
 END$$
 
+DROP PROCEDURE IF EXISTS `procedure_getUserName`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `procedure_getUserName`(IN _userId VARCHAR(20), OUT _userName VARCHAR(200))
+    DETERMINISTIC
+BEGIN
+
+	/*Obtener el userName a partir de id, se usa especialmente en las tablas hibridas para completar
+    los campos*/
+    
+	select 
+
+		Users.user_name
+            
+	into _userName
+        
+	from
+         
+		Users
+            
+	where    
+            
+		Users.user_id = _userId
+            
+	order by
+        
+		Users.user_id
+            
+	/*Toco limitar por si me saca el error
+    Error Code : 1172 Result consisted of more than one row*/
+    LIMIT 1;    
+
+END$$
+
 DELIMITER ;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `logins`
+-- Estructura de tabla para la tabla `centers`
 --
--- Creación: 22-06-2015 a las 00:25:25
+
+DROP TABLE IF EXISTS `centers`;
+CREATE TABLE IF NOT EXISTS `centers` (
+  `center_id` varchar(20) NOT NULL COMMENT 'Indentifica el centro al que pertenece la informacion del sistema de informacion',
+  `center_name` varchar(200) NOT NULL DEFAULT 'GIVE ME A NAME' COMMENT 'Nombre descriptivo del centro de informacion',
+  `center_status` set('ACTIVE','INACTIVE') NOT NULL DEFAULT 'ACTIVE' COMMENT 'Estado general del centro de informalcion',
+  `center_notes` text COMMENT 'Notas y observaciones del centro de informacion',
+  `center_modifiedsince` datetime DEFAULT NULL,
+  `center_modifiedby` varchar(20) DEFAULT NULL,
+  `center_createdsince` datetime DEFAULT NULL,
+  `center_createdby` varchar(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Centros principales de agrupacion de informacion, son como empresas';
+
+--
+-- Volcado de datos para la tabla `centers`
+--
+
+INSERT INTO `centers` (`center_id`, `center_name`, `center_status`, `center_notes`, `center_modifiedsince`, `center_modifiedby`, `center_createdsince`, `center_createdby`) VALUES
+('CENTRO 4', 'CENTRO CUATRO', 'ACTIVE', NULL, NULL, NULL, NULL, NULL),
+('CENTRO1', 'CENTRO UNO', 'ACTIVE', NULL, NULL, NULL, NULL, NULL),
+('CENTRO3', 'CENTRO TRES', 'ACTIVE', NULL, NULL, NULL, NULL, NULL),
+('CENTRO5', 'CENTRO CINCO', 'INACTIVE', NULL, NULL, NULL, NULL, NULL),
+('CENTRO_2', 'CENTRO DOS', 'ACTIVE', NULL, NULL, NULL, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `logins`
 --
 
 DROP TABLE IF EXISTS `logins`;
@@ -78,17 +167,21 @@ CREATE TABLE IF NOT EXISTS `logins` (
   `login_origin` varchar(100) DEFAULT 'UNKNOWN' COMMENT 'Dominio detectado con protocolo, por ejemplo http://www.qualisoft.com',
   `login_closed` datetime DEFAULT '0000-00-00 00:00:00' COMMENT 'Fecha hora del cierre de la sesion',
   `login_notes` varchar(50) DEFAULT NULL COMMENT 'Nota general de la sesion'
-) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8 COMMENT='Registro de logins de usuario, conocido igual como registro de sesiones';
-
---
--- RELACIONES PARA LA TABLA `logins`:
---
+) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8 COMMENT='Registro de logins de usuario, conocido igual como registro de sesiones';
 
 --
 -- Volcado de datos para la tabla `logins`
 --
 
 INSERT INTO `logins` (`login_user_id`, `login_time`, `login_id`, `login_status`, `login_useragent`, `login_language`, `login_platform`, `login_origin`, `login_closed`, `login_notes`) VALUES
+('clayanine', '2015-06-27 02:40:38', 00000000000000000041, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-26 19:46:56', 'THIS SESSION WAS CLOSED BY USER'),
+('clayanine', '2015-06-27 02:47:16', 00000000000000000042, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-26 19:50:04', 'THIS SESSION WAS CLOSED BY USER'),
+('clayanine', '2015-06-27 02:50:35', 00000000000000000043, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-26 19:51:44', 'THIS SESSION WAS CLOSED BY USER'),
+('clayanine', '2015-06-28 01:05:21', 00000000000000000046, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-27 19:53:48', 'THIS SESSION WAS CLOSED BY USER'),
+('clayanine', '2015-06-28 02:55:01', 00000000000000000048, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
+('clayanine', '2015-06-28 20:32:56', 00000000000000000050, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-28 13:35:49', 'THIS SESSION WAS CLOSED BY USER'),
+('clayanine', '2015-06-29 01:19:15', 00000000000000000053, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-28 18:19:39', 'THIS SESSION WAS CLOSED BY USER'),
+('clayanine', '2015-06-29 20:01:07', 00000000000000000056, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
 ('diegotorres50', '2015-06-23 04:44:12', 00000000000000000001, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-24 20:20:59', 'THIS SESSION WAS CLOSED BY USER'),
 ('diegotorres50', '2015-06-23 05:01:11', 00000000000000000002, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
 ('diegotorres50', '2015-06-23 20:18:34', 00000000000000000003, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
@@ -127,14 +220,33 @@ INSERT INTO `logins` (`login_user_id`, `login_time`, `login_id`, `login_status`,
 ('diegotorres50', '2015-06-25 03:51:22', 00000000000000000036, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
 ('diegotorres50', '2015-06-25 03:54:24', 00000000000000000037, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
 ('diegotorres50', '2015-06-25 03:56:07', 00000000000000000038, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-24 20:56:16', 'THIS SESSION WAS CLOSED BY USER'),
-('diegotorres50', '2015-06-25 03:59:48', 00000000000000000039, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-24 20:59:54', 'THIS SESSION WAS CLOSED BY USER');
+('diegotorres50', '2015-06-25 03:59:48', 00000000000000000039, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-24 20:59:54', 'THIS SESSION WAS CLOSED BY USER'),
+('diegotorres50', '2015-06-27 02:19:01', 00000000000000000040, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-26 19:40:12', 'THIS SESSION WAS CLOSED BY USER'),
+('diegotorres50', '2015-06-27 02:51:58', 00000000000000000044, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-26 19:53:19', 'THIS SESSION WAS CLOSED BY USER'),
+('diegotorres50', '2015-06-28 01:04:49', 00000000000000000045, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-27 18:05:00', 'THIS SESSION WAS CLOSED BY USER'),
+('diegotorres50', '2015-06-28 02:53:59', 00000000000000000047, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-27 19:54:25', 'THIS SESSION WAS CLOSED BY USER'),
+('diegotorres50', '2015-06-28 20:31:46', 00000000000000000049, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-28 13:32:37', 'THIS SESSION WAS CLOSED BY USER'),
+('diegotorres50', '2015-06-28 20:36:04', 00000000000000000051, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-28 13:38:47', 'THIS SESSION WAS CLOSED BY USER'),
+('diegotorres50', '2015-06-28 20:39:01', 00000000000000000052, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-28 18:18:44', 'THIS SESSION WAS CLOSED BY USER'),
+('diegotorres50', '2015-06-29 01:20:02', 00000000000000000054, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
+('diegotorres50', '2015-06-29 18:43:53', 00000000000000000055, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-29 13:00:43', 'THIS SESSION WAS CLOSED BY USER'),
+('diegotorres50', '2015-06-30 01:34:49', 00000000000000000057, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
+('diegotorres50', '2015-07-01 01:27:40', 00000000000000000058, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
+('diegotorres50', '2015-07-01 19:40:09', 00000000000000000059, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
+('diegotorres50', '2015-07-03 02:56:32', 00000000000000000060, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-07-02 20:00:10', 'THIS SESSION WAS CLOSED BY USER'),
+('diegotorres50', '2015-07-03 03:00:32', 00000000000000000061, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-07-02 20:02:56', 'THIS SESSION WAS CLOSED BY USER'),
+('diegotorres50', '2015-07-03 03:03:07', 00000000000000000062, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-07-02 20:07:53', 'THIS SESSION WAS CLOSED BY USER'),
+('diegotorres50', '2015-07-03 03:08:04', 00000000000000000063, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-07-02 20:09:00', 'THIS SESSION WAS CLOSED BY USER'),
+('diegotorres50', '2015-07-03 03:09:11', 00000000000000000064, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-07-02 20:09:58', 'THIS SESSION WAS CLOSED BY USER'),
+('diegotorres50', '2015-07-03 03:10:09', 00000000000000000065, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-07-02 20:13:21', 'THIS SESSION WAS CLOSED BY USER'),
+('diegotorres50', '2015-07-03 03:13:35', 00000000000000000066, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-07-02 20:14:07', 'THIS SESSION WAS CLOSED BY USER'),
+('diegotorres50', '2015-07-03 03:14:20', 00000000000000000067, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-07-02 20:57:57', 'THIS SESSION WAS CLOSED BY USER'),
+('diegotorres50', '2015-07-03 03:58:39', 00000000000000000068, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-07-02 20:59:16', 'THIS SESSION WAS CLOSED BY USER');
 
 -- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `system`
---
--- Creación: 20-06-2015 a las 03:25:58
 --
 
 DROP TABLE IF EXISTS `system`;
@@ -143,10 +255,6 @@ CREATE TABLE IF NOT EXISTS `system` (
   `system_maintenance_msg` text NOT NULL COMMENT 'El texto por defecto que se muestra',
   `system_version` tinyint(4) unsigned NOT NULL DEFAULT '1' COMMENT 'Versión del sistema'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Información general de la aplicación';
-
---
--- RELACIONES PARA LA TABLA `system`:
---
 
 --
 -- Volcado de datos para la tabla `system`
@@ -161,13 +269,11 @@ INSERT INTO `system` (`system_status`, `system_maintenance_msg`, `system_version
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `users`
---
--- Creación: 20-06-2015 a las 03:25:59
+-- Estructura de tabla para la tabla `Users`
 --
 
-DROP TABLE IF EXISTS `users`;
-CREATE TABLE IF NOT EXISTS `users` (
+DROP TABLE IF EXISTS `Users`;
+CREATE TABLE IF NOT EXISTS `Users` (
   `user_id` varchar(20) NOT NULL COMMENT 'Identificador unico del usuario, por ejemplo: diegotorres50',
   `user_document` varchar(15) DEFAULT NULL COMMENT 'Documento unico opcional para identificar al usuario, por ejemplo el numero de cedula o pasaporte',
   `user_status` set('ACTIVE','INACTIVE') NOT NULL DEFAULT 'INACTIVE' COMMENT 'Debe ser active o inactive',
@@ -182,7 +288,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `user_lastactivation` date DEFAULT NULL COMMENT 'Muestra la fecha desde que el usuario fue activado en el sistema',
   `user_alloweddays` int(3) DEFAULT NULL COMMENT 'Dias permitidos, si se quiere restringir el tiempo de activacion del usuario.',
   `user_photo` blob COMMENT 'Guarda en binario la imagen de perfil de usuario',
-  `user_role` set('NONE','ADMIN') DEFAULT 'NONE' COMMENT 'Determina el role de usuario para la logica de accesos a los diferentes modulos del sistema.',
+  `user_role` set('NONE','BASIC','STANDARD','ADMIN','MASTER') DEFAULT 'NONE' COMMENT 'Determina el role de usuario para la logica de accesos a los diferentes modulos del sistema.',
   `user_notes` text COMMENT 'Observaciones generales del usuario',
   `user_lastmovementdate` datetime DEFAULT NULL COMMENT 'Fecha y hora en que se toco el registro en la base de datos',
   `user_lastmovementip` varchar(15) DEFAULT NULL COMMENT 'Direccion ip para monitorear la ubicacion de quien toca el registro',
@@ -190,23 +296,38 @@ CREATE TABLE IF NOT EXISTS `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='App Users';
 
 --
--- RELACIONES PARA LA TABLA `users`:
+-- Volcado de datos para la tabla `Users`
 --
 
---
--- Volcado de datos para la tabla `users`
---
+INSERT INTO `Users` (`user_id`, `user_document`, `user_status`, `user_name`, `user_mail`, `user_pass`, `user_language`, `user_debugger`, `user_secretquestion`, `user_secretanswer`, `user_birthday`, `user_lastactivation`, `user_alloweddays`, `user_photo`, `user_role`, `user_notes`, `user_lastmovementdate`, `user_lastmovementip`, `user_lastmovementwho`) VALUES
+('clayanine1', '52234223', 'ACTIVE', 'Claudia Yanneth Neira', 'clayanine@hotmail.com', '14e1b600b1fd579f47433b88e8d85291', 'es', 0, 'nombre de bebe', 'Mariana', NULL, NULL, 30, NULL, 'NONE,BASIC,ADMIN', 'Otro usuario', '2015-07-02 20:57:06', NULL, NULL),
+('diegotorres50', '80123856', 'ACTIVE', 'Diego Torres', 'diegotorres50@hotmail.com', '14e1b600b1fd579f47433b88e8d85291', 'es', 0, 'nombre de mascota de padres', 'falkor', '0000-00-00', NULL, 30, NULL, 'MASTER', 'Usuario de prueba', '2015-06-28 13:38:39', NULL, NULL),
+('user1', NULL, 'INACTIVE', '', 'user1', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:36:26', NULL, NULL),
+('user10', NULL, 'INACTIVE', '', 'user10', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
+('user11', NULL, 'INACTIVE', '', 'user11', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
+('user12', NULL, 'INACTIVE', '', 'user12', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
+('user13', NULL, 'INACTIVE', '', 'user13', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
+('user14', NULL, 'INACTIVE', '', 'user14', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
+('user15', NULL, 'INACTIVE', '', 'user15', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
+('user16', NULL, 'INACTIVE', '', 'user16', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
+('user2', NULL, 'INACTIVE', '', 'user2', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:36:26', NULL, NULL),
+('user3', NULL, 'INACTIVE', '', 'user3', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:36:26', NULL, NULL),
+('user4', NULL, 'INACTIVE', '', 'user4', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
+('user5', NULL, 'INACTIVE', '', 'user5', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
+('user6', NULL, 'INACTIVE', '', 'user6', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
+('user7', NULL, 'INACTIVE', '', 'user7', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
+('user8', NULL, 'INACTIVE', '', 'user8', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
+('user9', NULL, 'INACTIVE', '', 'user9', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL);
 
-INSERT INTO `users` (`user_id`, `user_document`, `user_status`, `user_name`, `user_mail`, `user_pass`, `user_language`, `user_debugger`, `user_secretquestion`, `user_secretanswer`, `user_birthday`, `user_lastactivation`, `user_alloweddays`, `user_photo`, `user_role`, `user_notes`, `user_lastmovementdate`, `user_lastmovementip`, `user_lastmovementwho`) VALUES
-('clayanine', '52234223', 'ACTIVE', 'Claudia Neira', 'clayanine@hotmail.com', '14e1b600b1fd579f47433b88e8d85291', 'es', 0, 'nombre de bebe', 'Mariana', NULL, NULL, 30, NULL, 'ADMIN', 'Otro usuario', '2015-06-15 00:00:28', NULL, NULL),
-('diegotorres50', '80123856', 'ACTIVE', 'Diego Torres', 'diegotorres50@hotmail.com', '14e1b600b1fd579f47433b88e8d85291', 'es', 0, 'nombre de mascota de padres', 'falkor', '0000-00-00', NULL, 30, NULL, 'ADMIN', 'Usuario de prueba', '2015-06-15 00:00:28', NULL, NULL);
-
 --
--- Disparadores `users`
+-- Disparadores `Users`
+--
+-- Parece que su tabla utiliza disparadores («triggers»);
+-- exportar los alias no podría funcionar correctamente en todos los casos.
 --
 DROP TRIGGER IF EXISTS `users_before_ins_tr`;
 DELIMITER $$
-CREATE TRIGGER `users_before_ins_tr` BEFORE INSERT ON `users`
+CREATE TRIGGER `users_before_ins_tr` BEFORE INSERT ON `Users`
  FOR EACH ROW BEGIN
 
 #El campo clave lo interceptamos para cifrarlo en el campo.
@@ -219,7 +340,7 @@ $$
 DELIMITER ;
 DROP TRIGGER IF EXISTS `users_before_upd_tr`;
 DELIMITER $$
-CREATE TRIGGER `users_before_upd_tr` BEFORE UPDATE ON `users`
+CREATE TRIGGER `users_before_upd_tr` BEFORE UPDATE ON `Users`
  FOR EACH ROW BEGIN
 
 #Si el campo clave del usuario ha cambiado en el registro
@@ -233,9 +354,74 @@ END
 $$
 DELIMITER ;
 
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `users_x_centers`
+--
+
+DROP TABLE IF EXISTS `users_x_centers`;
+CREATE TABLE IF NOT EXISTS `users_x_centers` (
+  `users_x_centers_user_id` varchar(20) NOT NULL COMMENT 'Identificador del usuario',
+  `users_x_centers_user_name` varchar(200) DEFAULT 'GIVE ME A NAME' COMMENT 'Nombre del usuario',
+  `users_x_centers_center_id` varchar(20) NOT NULL COMMENT 'Indetificador del centro principal de informacion',
+  `users_x_centers_center_name` varchar(200) DEFAULT 'GIVE ME A NAME' COMMENT 'Nombre descriptivo del centro',
+  `users_x_centers_notes` text COMMENT 'Observaciones generales',
+  `users_x_centers_modifiedsince` datetime DEFAULT NULL,
+  `users_x_centers_modifiedby` varchar(20) DEFAULT NULL,
+  `users_x_centers_createdsince` datetime DEFAULT NULL,
+  `users_x_centers_createdby` varchar(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Tabla hibrida de usuarios x empresas';
+
+--
+-- Volcado de datos para la tabla `users_x_centers`
+--
+
+INSERT INTO `users_x_centers` (`users_x_centers_user_id`, `users_x_centers_user_name`, `users_x_centers_center_id`, `users_x_centers_center_name`, `users_x_centers_notes`, `users_x_centers_modifiedsince`, `users_x_centers_modifiedby`, `users_x_centers_createdsince`, `users_x_centers_createdby`) VALUES
+('clayanine1', 'Claudia Neira', 'centro1', 'GIVE ME A NAME', NULL, '2015-07-02 20:55:34', NULL, NULL, NULL),
+('diegotorres50', 'Diego Torres', 'centro3', 'GIVE ME A NAME', NULL, '2015-07-02 20:55:16', NULL, NULL, NULL),
+('diegotorres50', 'GIVE ME A NAME', 'CENTRO_2', 'GIVE ME A NAME', NULL, NULL, NULL, NULL, NULL);
+
+--
+-- Disparadores `users_x_centers`
+--
+DROP TRIGGER IF EXISTS `users_x_centers_BEFORE_UPDATE`;
+DELIMITER $$
+CREATE TRIGGER `users_x_centers_BEFORE_UPDATE` BEFORE UPDATE ON `users_x_centers`
+ FOR EACH ROW BEGIN
+
+Declare _userId VARCHAR(20);
+Declare _userName VARCHAR(200);
+
+set NEW.users_x_centers_modifiedsince = now();
+
+set _userId = new.users_x_centers_user_id;
+
+/*Calculamos el name del usuario*/
+CALL `procedure_getUserName`(_userId, @userName);
+
+/*seleccionamos los parametros de salida encontrado*/
+select @userName
+
+/*se los asignamos a las variables locales*/
+into _userName;
+
+/*Actualizamos el campo del nombre del usuario*/
+set new.users_x_centers_user_name = _userName;
+
+END
+$$
+DELIMITER ;
+
 --
 -- Índices para tablas volcadas
 --
+
+--
+-- Indices de la tabla `centers`
+--
+ALTER TABLE `centers`
+  ADD PRIMARY KEY (`center_id`);
 
 --
 -- Indices de la tabla `logins`
@@ -244,10 +430,16 @@ ALTER TABLE `logins`
   ADD PRIMARY KEY (`login_user_id`,`login_time`), ADD UNIQUE KEY `login_id_UNIQUE` (`login_id`);
 
 --
--- Indices de la tabla `users`
+-- Indices de la tabla `Users`
 --
-ALTER TABLE `users`
+ALTER TABLE `Users`
   ADD PRIMARY KEY (`user_id`), ADD UNIQUE KEY `user_mail_UNIQUE` (`user_mail`), ADD UNIQUE KEY `user_documen_UNIQUE` (`user_document`);
+
+--
+-- Indices de la tabla `users_x_centers`
+--
+ALTER TABLE `users_x_centers`
+  ADD PRIMARY KEY (`users_x_centers_user_id`,`users_x_centers_center_id`), ADD KEY `fk_center_id_idx` (`users_x_centers_center_id`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -257,7 +449,18 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT de la tabla `logins`
 --
 ALTER TABLE `logins`
-  MODIFY `login_id` bigint(20) unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT 'Un indice de secuencia que ayuda a indexar la tabla y a las busquedas de una sesion en particular',AUTO_INCREMENT=40;
+  MODIFY `login_id` bigint(20) unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT 'Un indice de secuencia que ayuda a indexar la tabla y a las busquedas de una sesion en particular',AUTO_INCREMENT=69;
+--
+-- Restricciones para tablas volcadas
+--
+
+--
+-- Filtros para la tabla `users_x_centers`
+--
+ALTER TABLE `users_x_centers`
+ADD CONSTRAINT `fk_center_id` FOREIGN KEY (`users_x_centers_center_id`) REFERENCES `centers` (`center_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `fk_user_id` FOREIGN KEY (`users_x_centers_user_id`) REFERENCES `Users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
