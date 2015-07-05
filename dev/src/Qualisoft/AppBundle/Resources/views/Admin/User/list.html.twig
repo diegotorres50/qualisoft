@@ -159,9 +159,18 @@
                     <div class="dataTables_paginate paging_full_numbers" id="example_paginate">
                         <span>
                             {#Renderizamos el paginador de la grilla#}
-                            {% for i in 1..pages_total %}
+                            {#{% for i in 1..pages_total %}
                                 <a tabindex="0" class="paginate_{% if current_page == i %}{{'active'}}{% else %}{{'button'}} {% endif %}" href="{{ path('qualisoft_admin_user_list', { 'offset': (i - 1) * page_records }) }}">{{ i }}</a> 
+                            {% endfor %} #} 
+
+                            {% for page in pagination %}
+                                {% if page.page_number matches '/^\\d+$/' %}
+                                <a tabindex="0" class="paginate_{% if current_page == page.page_number %}{{'active'}}{% else %}{{'button'}} {% endif %}" href="{{ path(page.path, { 'offset': page.offset, 'row_count': page.row_count}) }}">{{ page.page_number }}</a> 
+                                {% else %}
+                                <a tabindex="0" class="paginate_button">{{ page.page_number }}</a> 
+                                {% endif %}
                             {% endfor %}    
+
                         </span>
                     </div>
 
