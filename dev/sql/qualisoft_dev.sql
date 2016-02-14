@@ -1,20 +1,26 @@
 -- phpMyAdmin SQL Dump
--- version 4.3.11
+-- version 4.5.2
 -- http://www.phpmyadmin.net
 --
--- Servidor: 127.0.0.1
--- Tiempo de generación: 03-07-2015 a las 04:05:17
--- Versión del servidor: 5.6.24
--- Versión de PHP: 5.5.24
+-- Servidor: localhost
+-- Tiempo de generación: 14-02-2016 a las 21:22:01
+-- Versión del servidor: 10.1.9-MariaDB
+-- Versión de PHP: 5.5.30
 
+--
+-- script para servergrove.com
+--
+SET FOREIGN_KEY_CHECKS=0;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
 SET time_zone = "+00:00";
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 
 --
 -- Base de datos: `qualisoft_dev`
@@ -27,26 +33,18 @@ DELIMITER $$
 -- Procedimientos
 --
 DROP PROCEDURE IF EXISTS `procedure_closeLogin`$$
-CREATE DEFINER=`diego_torres`@`localhost` PROCEDURE `procedure_closeLogin`(IN param_login_id BIGINT(20))
-    DETERMINISTIC
-BEGIN
-	/*procedure_closeLogin() cambia el estado de la sesion a CLOSED
-    */
+CREATE DEFINER=`diego_torres`@`localhost` PROCEDURE `procedure_closeLogin` (IN `param_login_id` BIGINT(20))  BEGIN
+	/* @diegotorres50: este procedimiento cambia el estado de la session registrada en la
+    base de datos a 'closed' para asi cerrar la sesion en el sistema*/
     update 
-          logins #Sobre la tabla de sesiones
-    set 
-    	login_status='CLOSED', #Cambiamos el estado a cerrado en la sesion
-        login_notes='THIS SESSION WAS CLOSED BY USER', #Registramos una observacion
-        login_closed=NOW() #Datetime del cierre de la sesion
-    where 
-    	login_id=param_login_id and #El campo id debe coincidir con el parametro de entrada
-        login_status = 'OPENED'; #Y el estado del registro deberia ser una sesion abierta
-END$$
+          logins     set 
+    	login_status='CLOSED',         login_notes='THIS SESSION WAS CLOSED BY USER',         login_closed=NOW()     where 
+    	login_id=param_login_id and         login_status = 'OPENED'; END$$
 
 DROP PROCEDURE IF EXISTS `procedure_findAll`$$
-CREATE DEFINER=`diego_torres`@`localhost` PROCEDURE `procedure_findAll`( IN `tableName` VARCHAR( 28 ) , IN `search` TEXT )
-BEGIN
-
+CREATE DEFINER=`diego_torres`@`localhost` PROCEDURE `procedure_findAll` (IN `tableName` VARCHAR(28), IN `search` TEXT)  BEGIN
+/* @diegotorres50: este procedimiento que facilita la busqueda de resultados
+sobre una tabla y un patron de busqueda */	
  DECLARE finished INT DEFAULT FALSE ;
        DECLARE columnName VARCHAR ( 28 ) ;
        DECLARE stmtFields TEXT ;
@@ -63,8 +61,9 @@ BEGIN
               END IF;
               SET stmtFields = CONCAT(
                      stmtFields , IF ( LENGTH( stmtFields ) > 0 , ' OR' , ''  ) ,
-                     ' `', tableName ,'`.`' , columnName , '` REGEXP "' , search , '"'
+                     ' `', tableName ,'`.`' , columnName , '` LIKE "%' , search , '%"'
               ) ;
+              #SET stmtFields = "Users.user_id = 'diegotorres50'";
        END LOOP;
        SET @stmtQuery := CONCAT ( 'SELECT * FROM `' , tableName , '` WHERE ' , stmtFields ) ;
        PREPARE stmt FROM @stmtQuery ;
@@ -74,25 +73,17 @@ BEGIN
 END$$
 
 DROP PROCEDURE IF EXISTS `procedure_getLoginId`$$
-CREATE DEFINER=`diego_torres`@`localhost` PROCEDURE `procedure_getLoginId`(IN param_login_user_id VARCHAR(20), IN param_login_time DATETIME, OUT param_login_id BIGINT(20))
-    DETERMINISTIC
-BEGIN
-	select distinct(login_id) #Traemos el identificador de la sesion, el cual es el unico campo que nos interesa obtener en este procedimiento
-	into param_login_id #Guardamos el valor del campo en el parametro de salida de este procedimiento
-    from `logins` #El campo lo traemos de la tabla logins
-    where 
-		login_user_id=param_login_user_id and #Donde el campo user_id de logins coincida con el parametro de entrada y 
-        login_time=param_login_time #el campo time de logins coincida con el parametro de entrada time
-        order by login_user_id, login_time; #Ordenando por el user_id y el datetime cuando se creo el login o sesion
-END$$
+CREATE DEFINER=`diego_torres`@`localhost` PROCEDURE `procedure_getLoginId` (IN `param_login_user_id` VARCHAR(20), IN `param_login_time` DATETIME, OUT `param_login_id` BIGINT(20))  BEGIN
+/* @diegotorres50: este procedimiento devuelve el id de la sesion que se registra en la
+base de datos en el momento que un usuario inicia sesion web*/
+	select distinct(login_id) 	into param_login_id     from `logins`     where 
+		login_user_id=param_login_user_id and         login_time=param_login_time         order by login_user_id, login_time; END$$
 
 DROP PROCEDURE IF EXISTS `procedure_getUserName`$$
-CREATE DEFINER=`diego_torres`@`localhost` PROCEDURE `procedure_getUserName`(IN _userId VARCHAR(20), OUT _userName VARCHAR(200))
-    DETERMINISTIC
-BEGIN
+CREATE DEFINER=`diego_torres`@`localhost` PROCEDURE `procedure_getUserName` (IN `_userId` VARCHAR(20), OUT `_userName` VARCHAR(200))  BEGIN
 
-	/*Obtener el userName a partir de id, se usa especialmente en las tablas hibridas para completar
-    los campos*/
+	/* @diegotorres50: este procedimiento obtiene el username de un usuario
+    partiendo del id del usuario*/
     
 	select 
 
@@ -112,8 +103,7 @@ BEGIN
         
 		Users.user_id
             
-	/*Toco limitar por si me saca el error
-    Error Code : 1172 Result consisted of more than one row*/
+	
     LIMIT 1;    
 
 END$$
@@ -125,9 +115,11 @@ DELIMITER ;
 --
 -- Estructura de tabla para la tabla `centers`
 --
+-- Creación: 13-02-2016 a las 20:37:33
+--
 
 DROP TABLE IF EXISTS `centers`;
-CREATE TABLE IF NOT EXISTS `centers` (
+CREATE TABLE `centers` (
   `center_id` varchar(20) NOT NULL COMMENT 'Indentifica el centro al que pertenece la informacion del sistema de informacion',
   `center_name` varchar(200) NOT NULL DEFAULT 'GIVE ME A NAME' COMMENT 'Nombre descriptivo del centro de informacion',
   `center_status` set('ACTIVE','INACTIVE') NOT NULL DEFAULT 'ACTIVE' COMMENT 'Estado general del centro de informalcion',
@@ -137,6 +129,10 @@ CREATE TABLE IF NOT EXISTS `centers` (
   `center_createdsince` datetime DEFAULT NULL,
   `center_createdby` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Centros principales de agrupacion de informacion, son como empresas';
+
+--
+-- RELACIONES PARA LA TABLA `centers`:
+--
 
 --
 -- Volcado de datos para la tabla `centers`
@@ -154,12 +150,14 @@ INSERT INTO `centers` (`center_id`, `center_name`, `center_status`, `center_note
 --
 -- Estructura de tabla para la tabla `logins`
 --
+-- Creación: 13-02-2016 a las 20:37:36
+--
 
 DROP TABLE IF EXISTS `logins`;
-CREATE TABLE IF NOT EXISTS `logins` (
+CREATE TABLE `logins` (
   `login_user_id` varchar(20) NOT NULL DEFAULT 'UNKNOWN' COMMENT 'Identificador del usuario quien crea la sesion, no la relacionamos como clave foranea para que el mantenimiento de esta tabla no tenga conflistos de relacionaes',
   `login_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'Fecha y hora en que se crea la sesion, es el complemento con el user:id para generar una llave primaria.',
-  `login_id` bigint(20) unsigned zerofill NOT NULL COMMENT 'Un indice de secuencia que ayuda a indexar la tabla y a las busquedas de una sesion en particular',
+  `login_id` bigint(20) UNSIGNED ZEROFILL NOT NULL COMMENT 'Un indice de secuencia que ayuda a indexar la tabla y a las busquedas de una sesion en particular',
   `login_status` set('CLOSED','OPENED') NOT NULL DEFAULT 'OPENED' COMMENT 'Estado de la sesion actual, que puede representar que la sesion esta viva o ya fue cerrada por el usuario',
   `login_useragent` text COMMENT 'userAgent del navegador cliente',
   `login_language` varchar(20) DEFAULT 'UNKNOWN' COMMENT 'Idioma local del usuario detectado en el cliente',
@@ -167,7 +165,11 @@ CREATE TABLE IF NOT EXISTS `logins` (
   `login_origin` varchar(100) DEFAULT 'UNKNOWN' COMMENT 'Dominio detectado con protocolo, por ejemplo http://www.qualisoft.com',
   `login_closed` datetime DEFAULT '0000-00-00 00:00:00' COMMENT 'Fecha hora del cierre de la sesion',
   `login_notes` varchar(50) DEFAULT NULL COMMENT 'Nota general de la sesion'
-) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8 COMMENT='Registro de logins de usuario, conocido igual como registro de sesiones';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Registro de logins de usuario, conocido igual como registro de sesiones';
+
+--
+-- RELACIONES PARA LA TABLA `logins`:
+--
 
 --
 -- Volcado de datos para la tabla `logins`
@@ -183,7 +185,7 @@ INSERT INTO `logins` (`login_user_id`, `login_time`, `login_id`, `login_status`,
 ('clayanine', '2015-06-29 01:19:15', 00000000000000000053, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-28 18:19:39', 'THIS SESSION WAS CLOSED BY USER'),
 ('clayanine', '2015-06-29 20:01:07', 00000000000000000056, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
 ('diegotorres50', '2015-06-23 04:44:12', 00000000000000000001, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-06-24 20:20:59', 'THIS SESSION WAS CLOSED BY USER'),
-('diegotorres50', '2015-06-23 05:01:11', 00000000000000000002, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
+('diegotorres50', '2015-06-23 05:01:11', 00000000000000000002, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2016-02-13 15:46:02', 'THIS SESSION WAS CLOSED BY USER'),
 ('diegotorres50', '2015-06-23 20:18:34', 00000000000000000003, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
 ('diegotorres50', '2015-06-24 01:30:57', 00000000000000000004, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
 ('diegotorres50', '2015-06-24 03:22:39', 00000000000000000005, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
@@ -241,20 +243,27 @@ INSERT INTO `logins` (`login_user_id`, `login_time`, `login_id`, `login_status`,
 ('diegotorres50', '2015-07-03 03:10:09', 00000000000000000065, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-07-02 20:13:21', 'THIS SESSION WAS CLOSED BY USER'),
 ('diegotorres50', '2015-07-03 03:13:35', 00000000000000000066, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-07-02 20:14:07', 'THIS SESSION WAS CLOSED BY USER'),
 ('diegotorres50', '2015-07-03 03:14:20', 00000000000000000067, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-07-02 20:57:57', 'THIS SESSION WAS CLOSED BY USER'),
-('diegotorres50', '2015-07-03 03:58:39', 00000000000000000068, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-07-02 20:59:16', 'THIS SESSION WAS CLOSED BY USER');
+('diegotorres50', '2015-07-03 03:58:39', 00000000000000000068, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2015-07-02 20:59:16', 'THIS SESSION WAS CLOSED BY USER'),
+('diegotorres50', '2016-02-14 01:47:01', 00000000000000000069, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2016-02-13 19:49:29', 'THIS SESSION WAS CLOSED BY USER');
 
 -- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `system`
 --
+-- Creación: 13-02-2016 a las 20:37:31
+--
 
 DROP TABLE IF EXISTS `system`;
-CREATE TABLE IF NOT EXISTS `system` (
+CREATE TABLE `system` (
   `system_status` set('ACTIVE','INACTIVE') NOT NULL DEFAULT 'INACTIVE' COMMENT 'Define si el sistema esta activo o no para usarlo',
   `system_maintenance_msg` text NOT NULL COMMENT 'El texto por defecto que se muestra',
-  `system_version` tinyint(4) unsigned NOT NULL DEFAULT '1' COMMENT 'Versión del sistema'
+  `system_version` tinyint(4) UNSIGNED NOT NULL DEFAULT '1' COMMENT 'Versión del sistema'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Información general de la aplicación';
+
+--
+-- RELACIONES PARA LA TABLA `system`:
+--
 
 --
 -- Volcado de datos para la tabla `system`
@@ -271,9 +280,11 @@ INSERT INTO `system` (`system_status`, `system_maintenance_msg`, `system_version
 --
 -- Estructura de tabla para la tabla `Users`
 --
+-- Creación: 13-02-2016 a las 20:37:34
+--
 
 DROP TABLE IF EXISTS `Users`;
-CREATE TABLE IF NOT EXISTS `Users` (
+CREATE TABLE `Users` (
   `user_id` varchar(20) NOT NULL COMMENT 'Identificador unico del usuario, por ejemplo: diegotorres50',
   `user_document` varchar(15) DEFAULT NULL COMMENT 'Documento unico opcional para identificar al usuario, por ejemplo el numero de cedula o pasaporte',
   `user_status` set('ACTIVE','INACTIVE') NOT NULL DEFAULT 'INACTIVE' COMMENT 'Debe ser active o inactive',
@@ -294,6 +305,10 @@ CREATE TABLE IF NOT EXISTS `Users` (
   `user_lastmovementip` varchar(15) DEFAULT NULL COMMENT 'Direccion ip para monitorear la ubicacion de quien toca el registro',
   `user_lastmovementwho` varchar(10) DEFAULT NULL COMMENT 'User Id del usuario que toca el registro'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='App Users';
+
+--
+-- RELACIONES PARA LA TABLA `Users`:
+--
 
 --
 -- Volcado de datos para la tabla `Users`
@@ -322,33 +337,23 @@ INSERT INTO `Users` (`user_id`, `user_document`, `user_status`, `user_name`, `us
 --
 -- Disparadores `Users`
 --
--- Parece que su tabla utiliza disparadores («triggers»);
--- exportar los alias no podría funcionar correctamente en todos los casos.
---
 DROP TRIGGER IF EXISTS `users_before_ins_tr`;
 DELIMITER $$
-CREATE TRIGGER `users_before_ins_tr` BEFORE INSERT ON `Users`
- FOR EACH ROW BEGIN
+CREATE TRIGGER `users_before_ins_tr` BEFORE INSERT ON `Users` FOR EACH ROW BEGIN
 
-#El campo clave lo interceptamos para cifrarlo en el campo.
 SET NEW.user_pass = MD5(MD5(NEW.user_pass));
 
-#Actualizamos la fecha y hora en que el registro fue creado
 set NEW.user_lastmovementdate=now();
 END
 $$
 DELIMITER ;
 DROP TRIGGER IF EXISTS `users_before_upd_tr`;
 DELIMITER $$
-CREATE TRIGGER `users_before_upd_tr` BEFORE UPDATE ON `Users`
- FOR EACH ROW BEGIN
+CREATE TRIGGER `users_before_upd_tr` BEFORE UPDATE ON `Users` FOR EACH ROW BEGIN
 
-#Si el campo clave del usuario ha cambiado en el registro
 if NEW.user_pass <> old.user_pass then
-	SET NEW.user_pass = MD5(MD5(NEW.user_pass)); #Actualizamos la clave del usuario
-end if;  
+	SET NEW.user_pass = MD5(MD5(NEW.user_pass)); end if;  
 
-#Actualizamos la fecha y hora en que el registro fue actualizado 
 set NEW.user_lastmovementdate=now();
 END
 $$
@@ -359,9 +364,11 @@ DELIMITER ;
 --
 -- Estructura de tabla para la tabla `users_x_centers`
 --
+-- Creación: 13-02-2016 a las 20:37:37
+--
 
 DROP TABLE IF EXISTS `users_x_centers`;
-CREATE TABLE IF NOT EXISTS `users_x_centers` (
+CREATE TABLE `users_x_centers` (
   `users_x_centers_user_id` varchar(20) NOT NULL COMMENT 'Identificador del usuario',
   `users_x_centers_user_name` varchar(200) DEFAULT 'GIVE ME A NAME' COMMENT 'Nombre del usuario',
   `users_x_centers_center_id` varchar(20) NOT NULL COMMENT 'Indetificador del centro principal de informacion',
@@ -372,6 +379,14 @@ CREATE TABLE IF NOT EXISTS `users_x_centers` (
   `users_x_centers_createdsince` datetime DEFAULT NULL,
   `users_x_centers_createdby` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Tabla hibrida de usuarios x empresas';
+
+--
+-- RELACIONES PARA LA TABLA `users_x_centers`:
+--   `users_x_centers_center_id`
+--       `centers` -> `center_id`
+--   `users_x_centers_user_id`
+--       `Users` -> `user_id`
+--
 
 --
 -- Volcado de datos para la tabla `users_x_centers`
@@ -387,8 +402,7 @@ INSERT INTO `users_x_centers` (`users_x_centers_user_id`, `users_x_centers_user_
 --
 DROP TRIGGER IF EXISTS `users_x_centers_BEFORE_UPDATE`;
 DELIMITER $$
-CREATE TRIGGER `users_x_centers_BEFORE_UPDATE` BEFORE UPDATE ON `users_x_centers`
- FOR EACH ROW BEGIN
+CREATE TRIGGER `users_x_centers_BEFORE_UPDATE` BEFORE UPDATE ON `users_x_centers` FOR EACH ROW BEGIN
 
 Declare _userId VARCHAR(20);
 Declare _userName VARCHAR(200);
@@ -397,16 +411,16 @@ set NEW.users_x_centers_modifiedsince = now();
 
 set _userId = new.users_x_centers_user_id;
 
-/*Calculamos el name del usuario*/
+
 CALL `procedure_getUserName`(_userId, @userName);
 
-/*seleccionamos los parametros de salida encontrado*/
+
 select @userName
 
-/*se los asignamos a las variables locales*/
+
 into _userName;
 
-/*Actualizamos el campo del nombre del usuario*/
+
 set new.users_x_centers_user_name = _userName;
 
 END
@@ -427,19 +441,23 @@ ALTER TABLE `centers`
 -- Indices de la tabla `logins`
 --
 ALTER TABLE `logins`
-  ADD PRIMARY KEY (`login_user_id`,`login_time`), ADD UNIQUE KEY `login_id_UNIQUE` (`login_id`);
+  ADD PRIMARY KEY (`login_user_id`,`login_time`),
+  ADD UNIQUE KEY `login_id_UNIQUE` (`login_id`);
 
 --
 -- Indices de la tabla `Users`
 --
 ALTER TABLE `Users`
-  ADD PRIMARY KEY (`user_id`), ADD UNIQUE KEY `user_mail_UNIQUE` (`user_mail`), ADD UNIQUE KEY `user_documen_UNIQUE` (`user_document`);
+  ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `user_mail_UNIQUE` (`user_mail`),
+  ADD UNIQUE KEY `user_documen_UNIQUE` (`user_document`);
 
 --
 -- Indices de la tabla `users_x_centers`
 --
 ALTER TABLE `users_x_centers`
-  ADD PRIMARY KEY (`users_x_centers_user_id`,`users_x_centers_center_id`), ADD KEY `fk_center_id_idx` (`users_x_centers_center_id`);
+  ADD PRIMARY KEY (`users_x_centers_user_id`,`users_x_centers_center_id`),
+  ADD KEY `fk_center_id_idx` (`users_x_centers_center_id`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -449,7 +467,7 @@ ALTER TABLE `users_x_centers`
 -- AUTO_INCREMENT de la tabla `logins`
 --
 ALTER TABLE `logins`
-  MODIFY `login_id` bigint(20) unsigned zerofill NOT NULL AUTO_INCREMENT COMMENT 'Un indice de secuencia que ayuda a indexar la tabla y a las busquedas de una sesion en particular',AUTO_INCREMENT=69;
+  MODIFY `login_id` bigint(20) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT COMMENT 'Un indice de secuencia que ayuda a indexar la tabla y a las busquedas de una sesion en particular', AUTO_INCREMENT=70;
 --
 -- Restricciones para tablas volcadas
 --
@@ -458,8 +476,40 @@ ALTER TABLE `logins`
 -- Filtros para la tabla `users_x_centers`
 --
 ALTER TABLE `users_x_centers`
-ADD CONSTRAINT `fk_center_id` FOREIGN KEY (`users_x_centers_center_id`) REFERENCES `centers` (`center_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-ADD CONSTRAINT `fk_user_id` FOREIGN KEY (`users_x_centers_user_id`) REFERENCES `Users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_center_id` FOREIGN KEY (`users_x_centers_center_id`) REFERENCES `centers` (`center_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_user_id` FOREIGN KEY (`users_x_centers_user_id`) REFERENCES `Users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+--
+-- Metadatos
+--
+USE `phpmyadmin`;
+
+--
+-- Metadatos para centers
+--
+
+--
+-- Metadatos para logins
+--
+
+--
+-- Metadatos para system
+--
+
+--
+-- Metadatos para Users
+--
+
+--
+-- Metadatos para users_x_centers
+--
+
+--
+-- Metadatos para qualisoft_dev
+--
+SET FOREIGN_KEY_CHECKS=1;
+COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
