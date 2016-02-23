@@ -1,0 +1,199 @@
+{#
+    @diegotorres50: Esta es la plantilla de la lista de usuarios
+
+    #}
+
+{#Heredamos ek layout con todas las caracteristicas del frontend#}
+{% extends 'QualisoftAppBundle::layout.html.twig' %} 
+
+{#
+    titulo de la pagina
+    #}
+{% block title %}
+    {{ view_info.title }}
+{% endblock %}
+
+{#
+    titulo del modulo
+    #}
+{% block module_title %}
+    {{ view_info.module_title }}
+{% endblock %}    
+
+{#
+    subtitulo del modulo
+    #}
+{% block module_subtitle %}
+    {{ view_info.module_subtitle }}
+{% endblock %}
+
+{#
+    descripcion del modulo
+    #}
+{% block content_lead %}
+    {{ view_info.module_lead }}
+{% endblock %}
+
+{#
+Incluimos la plantilla del menu herramientas del modulo
+#}
+{% block module_toolsmenu %}
+
+<li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+    <ul class="dropdown-menu" role="menu">
+        <li><a href="{{ path('qualisoft_admin_user_general', { 'offset': 0, 'row_count': 5}) }}">Remover filtros</a></li>
+    </ul>
+</li>
+
+{% endblock %}
+
+{#
+    contenido de la pagina
+    #}
+{% block x_content %}
+
+    {#
+        contenido de las alertas debe ir debtro del content
+        #}
+    {% block content_alerts %}
+
+        {% for flashMessage in app.session.flashbag.get('warning_msg') %}
+
+            {#
+            Incluimos la plantilla de la alerta
+            #}
+            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+                'msgClass': 'alert-warning', 
+                'msgGlyphicon': 'glyphicon-exclamation-sign',
+                'msgTitle': 'Warning!',
+                'msgText': flashMessage }
+                ) 
+            }}
+
+        {% endfor %} 
+
+        {% for flashMessage in app.session.flashbag.get('info_msg') %}
+
+            {#
+            Incluimos la plantilla de la alerta
+            #}
+            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+                'msgClass': 'alert-info', 
+                'msgTitle': 'Info',
+                'msgText': flashMessage }
+                ) 
+            }}
+
+        {% endfor %}
+
+        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+
+            {#
+            Incluimos la plantilla de la alerta
+            #}
+            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+                'msgClass': 'alert-danger', 
+                'msgGlyphicon': 'glyphicon-exclamation-sign',
+                'msgTitle': 'Error!',
+                'msgText': flashMessage }
+                ) 
+            }}        
+
+        {% endfor %} 
+
+        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+
+            {#
+            Incluimos la plantilla de la alerta
+            #}
+            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+                'msgClass': 'alert-success', 
+                'msgTitle': ':)',
+                'msgText': flashMessage }
+                ) 
+            }} 
+
+        {% endfor %}                
+
+    {% endblock %}
+
+    {#
+    Aqui va el contenido principal
+    #}
+
+    <div class="accordion" id="accordion1" role="tablist" aria-multiselectable="true">
+
+        <!-- Inicio Primer panel//-->
+        <div class="panel">
+            <a class="panel-heading" role="tab" id="headingOne1" data-toggle="collapse" data-parent="#accordion1" href="#collapseOne1" aria-expanded="true" aria-controls="collapseOne">
+                <h4 class="panel-title">Lista de resultados</h4>
+            </a>
+            <div id="collapseOne1" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne" aria-expanded="true">
+                <div class="panel-body">
+
+                {#
+                Incluimos la plantilla de los resultados de busqueda
+                #}
+                {{ include('QualisoftAppBundle:Admin/User:lookup_results.html.twig', { 
+                    'rows_found': rows_found, 
+                    'cols': cols,
+                    'pages_total': pages_total,
+                    'total': total,
+                    'pagination': pagination}
+                    ) 
+                }}
+
+                </div>
+            </div>
+        </div>
+        <!-- Fin Primer panel//-->
+
+        <!-- Inicio Segundo panel//-->
+        <div class="panel">
+            <a class="panel-heading collapsed" role="tab" id="headingTwo1" data-toggle="collapse" data-parent="#accordion1" href="#collapseTwo1" aria-expanded="false" aria-controls="collapseTwo">
+                <h4 class="panel-title">Busqueda b&aacute;sica</h4>
+            </a>
+            <div id="collapseTwo1" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo" aria-expanded="false" style="height: 0px;">
+                <div class="panel-body">
+
+                {#
+                Incluimos la plantilla de la busqueda básica
+                #}
+                {{ include('QualisoftAppBundle:Admin/User:basic_lookup.html.twig') }}
+
+                </div>
+            </div>
+        </div>
+        <!-- Fin Segundo panel//-->
+
+        <!-- Inicio Tercer panel//-->
+        <div class="panel">
+            <a class="panel-heading collapsed" role="tab" id="headingTwo1" data-toggle="collapse" data-parent="#accordion1" href="#collapseThree1" aria-expanded="false" aria-controls="collapseTwo">
+                <h4 class="panel-title">Busqueda avanzada</h4>
+            </a>
+            <div id="collapseThree1" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo" aria-expanded="false" style="height: 0px;">
+                <div class="panel-body">
+
+                {#
+                Incluimos la plantilla de la busqueda básica
+                #}
+                {{ include('QualisoftAppBundle:Admin/User:advance_lookup.html.twig') }}
+
+                </div>
+            </div>
+        </div> 
+        <!-- Fin Tercer panel//-->
+
+    </div>
+
+{% endblock %}
+
+{#
+    Incluimos en el footer la logica del validator
+    #}
+{% block footer_javascripts %}
+
+    {{ parent() }}
+
+{% endblock %}

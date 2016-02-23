@@ -1,0 +1,50 @@
+{% if rows_found %} {#En caso de no haber registros encontrados no mostrar la grilla#}
+
+<table id="example" class="table table-striped responsive-utilities jambo_table">
+    <thead>
+        <tr class="headings">
+            {#Renderizamos las columnas que queremos mostrar en la grilla#}
+            {% for col in cols %}
+                <th>{{ col }}</th>
+            {% endfor %}
+
+        </tr>
+    </thead>
+
+    <tbody>
+        {#Renderizamos los registros encontrados en la grilla, aqui las filas#}
+        {% for row in rows_found %}
+            <tr class="even pointer">
+
+                {#Renderizamos los registros encontrados en la grilla, aqui las columnas#}
+                {% for col in row %}
+                    <td class=" ">{{ col }}</td>
+                {% endfor %}    
+
+            </tr>
+        {% endfor %}
+
+    </tbody>
+
+</table>
+{#Aqui el footer informaltivo de la grilla#}
+<div class="dataTables_info" id="example_info">{{ rows_found|length }} de {{ total }} registros en {{ pages_total }} páginas</div>
+<div class="dataTables_paginate paging_full_numbers" id="example_paginate">
+    <span>
+        {#Renderizamos el paginador de la grilla#}
+        {#{% for i in 1..pages_total %}
+            <a tabindex="0" class="paginate_{% if current_page == i %}{{'active'}}{% else %}{{'button'}} {% endif %}" href="{{ path('qualisoft_admin_user_general', { 'offset': (i - 1) * page_records }) }}">{{ i }}</a> 
+        {% endfor %} #} 
+
+        {% for page in pagination %}
+            {% if page.page_number matches '/^\\d+$/' %}
+            <a tabindex="0" class="paginate_{% if current_page == page.page_number %}{{'active'}}{% else %}{{'button'}} {% endif %}" href="{{ path(page.path, { 'offset': page.offset, 'row_count': page.row_count}) }}">{{ page.page_number }}</a> 
+            {% else %}
+            <a tabindex="0" class="paginate_button">{{ page.page_number }}</a> 
+            {% endif %}
+        {% endfor %}    
+
+    </span>
+</div>
+
+{% endif %}
