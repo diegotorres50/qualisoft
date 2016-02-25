@@ -64,8 +64,10 @@ class UserController extends Controller
         */
         $defaultData = array('message' => 'Type your message here');
 
+        //Para ayudar la logica del formulario, seteramos un query string para que al cargar la pagina
+        //sepamos que debemos conservar los criterios de la busqueda
         $form_basicLookup = $this->createFormBuilder($defaultData)
-            ->setAction($this->generateUrl('qualisoft_admin_user_general'))
+            ->setAction($this->generateUrl('qualisoft_admin_user_general', array('filter'=>'enabled')))
             ->setMethod('POST')
             //->setAttribute('class', 'form-horizontal')) Tarea: como agregar atriburos custom al form tag
             ->add('keyword', 'text', array(
@@ -144,6 +146,7 @@ class UserController extends Controller
                 //Para saber si la consulta tiene criterios basicos
                 $session->set("filter_options", array('alias' => 'default_lookup', 'query' => ''));            
             }    
+
         }  
 
         /*
@@ -180,7 +183,21 @@ class UserController extends Controller
         }
         //
 
-        var_dump($session->get("filter_options"));
+        /**
+         * Inicia verificacion de query string para definir la logica por defecto
+         */
+
+        //Recorgemos el query string de la url para saber si la pagina la cargamos con filtros
+        $filter_status = $request->query->get('filter'); // get a $_GET parameter from query string
+
+        if(($filter_status == 'disabled')) {
+            //En caso de que el usuario anule los filtros debemos borrar la variable seteada en la sesion
+            $session->remove("filter_options");
+        }
+
+        /**
+         * Termina verificacion de query string para definir la logica por defecto
+         */
 
         if($session->has("filter_options")) //Si en la sesion del browser no esta seteada la variable de filtros para la consulta
         {
@@ -199,10 +216,13 @@ class UserController extends Controller
                     $_getRecordsFrom = $this->getRecordsFrom($m, 'view_users', $this->container->getParameter('database_name'), '', '', $offset, $row_count);
 
                 }
-            }    
-        
+            }            
 
-        }    
+        } else {
+
+            //Tratamos de recuperar los nombres de las columnas desde mysql
+            $_getRecordsFrom = $this->getRecordsFrom($m, 'view_users', $this->container->getParameter('database_name'), '', '', $offset, $row_count);            
+        }  
 
         $_getRecords = $_getRecordsFrom;
 
