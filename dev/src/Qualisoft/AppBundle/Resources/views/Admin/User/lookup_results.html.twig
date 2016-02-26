@@ -17,7 +17,6 @@
         {#Renderizamos los registros encontrados en la grilla, aqui las filas#}
         {% for row in rows_found %}
             <tr class="even pointer">
-
                 {#Renderizamos los registros encontrados en la grilla, aqui las columnas#}
                 {% for col in row %}
                     <td class=" ">{{ col }}</td>
@@ -27,21 +26,21 @@
                     
                     <!-- Split button -->
                     <div class="btn-group">
-                        <button type="button" class="btn btn-danger">Action</button>
+                        <button type="button" class="btn btn-danger">Acci&oacute;n</button>
                         <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                             <span class="caret"></span>
                             <span class="sr-only">Toggle Dropdown</span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
-                            <li><a href="#">Action</a>
+                            <li><a href="{{ path('qualisoft_admin_user_purge', { 'id_value': row.0}) }}">Purgar</a>
                             </li>
-                            <li><a href="#">Another action</a>
+                            <li><a href="#">Editar</a>
                             </li>
-                            <li><a href="#">Something else here</a>
-                            </li>
+                            <!--
                             <li class="divider"></li>
                             <li><a href="#">Separated link</a>
                             </li>
+                            //-->
                         </ul>
                     </div>
                     

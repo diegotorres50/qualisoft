@@ -264,7 +264,73 @@ class UserController extends Controller
                 )
             );
     }
+
+     /**
+     * @Route("admin/user/purge/{id_value}/{table_name}/{column_name}", name="qualisoft_admin_user_purge", defaults={"table_name" = "Users", "column_name" = "user_id"})   
+     */
+    public function purgeAction(Request $request, $id_value, $table_name, $column_name)
+    {
+
+        //DEBEMOS CONTROLAR QUE ESTA TEMPLATE SOLO SEA VISIBLE PARA USUARIOS MASTER
+
+        /**
+         * Inicia logica verificacion de autenticaccion y acceso mediante las sesiones.
+         */
+
+        $session=$request->getSession(); //Instanciamos la sesion del navegador
+
+        if(!$session->has("userId")) //Si en la sesion del browser no esta seteada la variable userId
+        {
+            //Usamos getFlashBag() para renderizar la alerta de que no esta logueado
+            $this->get('session')->getFlashBag()->add(
+                               'warning_msg',
+                               'Debe estar logueado para ver este contenido.'
+                           );
             
+            //Dirigimos al login para que haga su autenticacion primero
+            return $this->redirect($this->generateUrl('qualisoft_security_login'));
+
+        } elseif(!$session->has("userRole") || !in_array('MASTER', Config::$ROLES[$session->get("userRole")])) { //Si no se tiene el role de usuario en la sesion o no esta en el array de configuracion de qualisoft es porque no es un usuario con perfil de MASTER
+
+            $this->get('session')->getFlashBag()->add(
+                               'warning_msg',
+                               'El usuario no tiene suficientes permisos ' . $session->get("userRole") . ' para purgar el registro.'
+                           );
+            
+            // redirect the user to where they were before the login process begun.
+            $referer_url = $request->headers->get('referer');
+                        
+            if(!empty($referer_url)) return $this->redirect($request->headers->get('referer'));
+            else return $this->redirect($this->generateUrl('qualisoft_default_homepage')); //Por defecto al home sino hay referrer
+        }
+
+        /**
+         * Termina logica verificacion de autenticaccion y acceso.
+         */
+
+        //Instanciamos el modelo de conexion mysql usando el modelo de conexion
+        $m = new Model(
+            $this->container->getParameter('database_name'), 
+            $this->container->getParameter('database_user'),
+            $this->container->getParameter('database_password'),
+            $this->container->getParameter('database_host')
+        );
+
+        //Tratamos de cambiar el estado del registro para ocultarlo de las consultas generales
+        $_setToPurge = $this->setToPurge($m, $table_name, $column_name, $id_value);
+
+        if (!empty($_setToPurge) && is_array($_setToPurge) && isset($_setToPurge['errorMsg'])) {
+            $this->get('session')->getFlashBag()->add(
+                        'error_msg',
+                        $_setToPurge['errorMsg']
+                    );
+        }
+        //
+        
+        return $this->redirect($this->generateUrl('qualisoft_admin_user_general'));
+
+    }
+
 }
 
 //Funciones custom de @diegotorres50 para incluiir en el contrlador
@@ -445,6 +511,24 @@ trait DefaultTrait
 
         //Tratamos de recuperar los registros desde mysql
         $_result = $_conexion->getRecordsFrom($param_values);
+
+        //Retornamos los nombres de las columnas
+        return $_result;
+
+    }
+
+    //Metodo para cambiar el estado de purga a true de un registro
+    protected function setToPurge($_conexion, $_table_name, $_column_name, $_id_value)
+    {
+        //Seteamos el objeto parametro que enviaremos a mysql
+        $param_values = array(
+            'TABLE' => $_table_name,
+            'FIELD' => $_column_name,
+            'VALUE' => $_id_value
+        );
+
+        //Tratamos de cambiar el estado del campo purge en mysql
+        $_result = $_conexion->setToPurge($param_values);
 
         //Retornamos los nombres de las columnas
         return $_result;

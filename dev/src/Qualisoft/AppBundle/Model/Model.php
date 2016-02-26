@@ -604,6 +604,33 @@ class Model
         return $rows_found[0]['total'];
      }
 
+    public function setToPurge($values)
+    {
+
+        /*
+        @diegotorres50: este procedimiento cambia el estado de purga de registro a '1' de manera
+        que el registro se filtre en todas las consultas para ocultarlo y en otro procedimiento
+        borrarlo por completo de la tabla
+        */
+        
+        if(!isset($values) || empty($values) || !is_array($values)) 
+            return array('errorMsg' => 'Se esperaba un objeto como parámetro del método');
+
+        //Ejecutamos el procedimiento
+        //No usemos el nombre de la base de datos para evitar errores: nombrebasededatos. procedure(
+        $sql = "call procedure_setToPurge('" . $values['TABLE'] . "', '" . $values['FIELD'] . "', '" . $values['VALUE'] . "');";
+
+        $result = mysqli_query($this->conexion, $sql);
+
+        if(!$result) {
+            return array('errorMsg' => 'No ha sido posible setear el estado de purga: ' . mysqli_error($this->conexion));
+        }
+
+        //mysqli_close($this->conexion); No cerremos la conexion para reusarla    
+
+        return $result;
+     }
+
     /*
 
     @diegotorres50: estos son metodos dummy

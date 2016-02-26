@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Servidor: localhost
--- Tiempo de generación: 24-02-2016 a las 00:50:07
+-- Tiempo de generación: 26-02-2016 a las 02:33:20
 -- Versión del servidor: 10.1.9-MariaDB
 -- Versión de PHP: 5.5.30
 
@@ -16,7 +16,7 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 
 --
--- Base de datos: `qualisoft_dev`
+-- Base de datos: `diegotor_qualisoft_dev`
 --
 DROP DATABASE `diegotor_qualisoft_dev`;
 CREATE DATABASE IF NOT EXISTS `diegotor_qualisoft_dev` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
@@ -28,17 +28,17 @@ DELIMITER $$
 --
 DROP PROCEDURE IF EXISTS `procedure_closeLogin`$$
 CREATE DEFINER=`diego_torres`@`localhost` PROCEDURE `procedure_closeLogin` (IN `param_login_id` BIGINT(20))  BEGIN
-	/* @diegotorres50: este procedimiento cambia el estado de la session registrada en la
+  /* @diegotorres50: este procedimiento cambia el estado de la session registrada en la
     base de datos a 'closed' para asi cerrar la sesion en el sistema*/
     update 
           logins     set 
-    	login_status='CLOSED',         login_notes='THIS SESSION WAS CLOSED BY USER',         login_closed=NOW()     where 
-    	login_id=param_login_id and         login_status = 'OPENED'; END$$
+      login_status='CLOSED',         login_notes='THIS SESSION WAS CLOSED BY USER',         login_closed=NOW()     where 
+      login_id=param_login_id and         login_status = 'OPENED'; END$$
 
 DROP PROCEDURE IF EXISTS `procedure_findAll`$$
 CREATE DEFINER=`diego_torres`@`localhost` PROCEDURE `procedure_findAll` (IN `_tableName` VARCHAR(28), IN `_databaseName` VARCHAR(28), IN `_search` TEXT, IN `_orderby` VARCHAR(28), IN `_offset` INT(10), IN `_rowcount` SMALLINT(3))  BEGIN
 /* @diegotorres50: este procedimiento que facilita la busqueda de resultados
-sobre una tabla y un patron de busqueda */	
+sobre una tabla y un patron de busqueda */  
  DECLARE finished INT DEFAULT FALSE ;
        DECLARE columnName VARCHAR ( 28 ) ;
        DECLARE stmtFields TEXT ;
@@ -82,7 +82,7 @@ END$$
 
 DROP PROCEDURE IF EXISTS `procedure_getColumnNames`$$
 CREATE DEFINER=`diego_torres`@`localhost` PROCEDURE `procedure_getColumnNames` (IN `tableName` VARCHAR(28), IN `databaseName` VARCHAR(28), OUT `columnsAlias` VARCHAR(200))  BEGIN
-/* @diegotorres50: este procedimiento que facilita extraer los nombres de columna para una viata o tabla */	
+/* @diegotorres50: este procedimiento que facilita extraer los nombres de columna para una viata o tabla */ 
  DECLARE finished INT DEFAULT FALSE ;
        DECLARE columnName VARCHAR ( 28 ) ;
        DECLARE stmtFields TEXT ;
@@ -110,36 +110,50 @@ DROP PROCEDURE IF EXISTS `procedure_getLoginId`$$
 CREATE DEFINER=`diego_torres`@`localhost` PROCEDURE `procedure_getLoginId` (IN `param_login_user_id` VARCHAR(20), IN `param_login_time` DATETIME, OUT `param_login_id` BIGINT(20))  BEGIN
 /* @diegotorres50: este procedimiento devuelve el id de la sesion que se registra en la
 base de datos en el momento que un usuario inicia sesion web*/
-	select distinct(login_id) 	into param_login_id     from `logins`     where 
-		login_user_id=param_login_user_id and         login_time=param_login_time         order by login_user_id, login_time; END$$
+  select distinct(login_id)   into param_login_id     from `logins`     where 
+    login_user_id=param_login_user_id and         login_time=param_login_time         order by login_user_id, login_time; END$$
 
 DROP PROCEDURE IF EXISTS `procedure_getUserName`$$
 CREATE DEFINER=`diego_torres`@`localhost` PROCEDURE `procedure_getUserName` (IN `_userId` VARCHAR(20), OUT `_userName` VARCHAR(200))  BEGIN
 
-	/* @diegotorres50: este procedimiento obtiene el username de un usuario
+  /* @diegotorres50: este procedimiento obtiene el username de un usuario
     partiendo del id del usuario*/
     
-	select 
+  select 
 
-		Users.user_name
+    Users.user_name
             
-	into _userName
+  into _userName
         
-	from
+  from
          
-		Users
+    Users
             
-	where    
+  where    
             
-		Users.user_id = _userId
+    Users.user_id = _userId
             
-	order by
+  order by
         
-		Users.user_id
+    Users.user_id
             
-	
+  
     LIMIT 1;    
 
+END$$
+
+DROP PROCEDURE IF EXISTS `procedure_setToPurge`$$
+CREATE DEFINER=`diego_torres`@`localhost` PROCEDURE `procedure_setToPurge` (IN `param_table_name` VARCHAR(28), IN `param_record_id` VARCHAR(28), IN `param_id_value` VARCHAR(28))  BEGIN
+  /*
+    @diegotorres50: este procedimiento cambia el estado de purga de registro a '1' de manera
+    que el registro se filtre en todas las consultas para ocultarlo y en otro procedimiento
+    borrarlo por completo de la tabla
+    */
+  SET @stmt = CONCAT ( 'UPDATE `' , param_table_name , '` SET `purged` = 1 WHERE `' , param_record_id , '` = ?;') ;
+  SET @_id_value = param_id_value;
+    PREPARE _query FROM @stmt;
+  EXECUTE _query USING @_id_value;
+  DEALLOCATE PREPARE _query;      
 END$$
 
 --
@@ -158,7 +172,7 @@ DELIMITER ;
 --
 -- Estructura de tabla para la tabla `Users`
 --
--- Creación: 13-02-2016 a las 20:37:34
+-- Creación: 26-02-2016 a las 00:05:39
 --
 
 DROP TABLE IF EXISTS `Users`;
@@ -181,7 +195,8 @@ CREATE TABLE `Users` (
   `user_notes` text COMMENT 'Observaciones generales del usuario',
   `user_lastmovementdate` datetime DEFAULT NULL COMMENT 'Fecha y hora en que se toco el registro en la base de datos',
   `user_lastmovementip` varchar(15) DEFAULT NULL COMMENT 'Direccion ip para monitorear la ubicacion de quien toca el registro',
-  `user_lastmovementwho` varchar(10) DEFAULT NULL COMMENT 'User Id del usuario que toca el registro'
+  `user_lastmovementwho` varchar(10) DEFAULT NULL COMMENT 'User Id del usuario que toca el registro',
+  `purged` bit(1) DEFAULT b'0' COMMENT '0 = el registro de la tabla esta disponible para consultas, 1 = el registro debe ser filtrado para no mostrarse y deberia ser borrado por un procedimiento del administrador del sistema'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='App Users';
 
 --
@@ -192,25 +207,25 @@ CREATE TABLE `Users` (
 -- Volcado de datos para la tabla `Users`
 --
 
-INSERT INTO `Users` (`user_id`, `user_document`, `user_status`, `user_name`, `user_mail`, `user_pass`, `user_language`, `user_debugger`, `user_secretquestion`, `user_secretanswer`, `user_birthday`, `user_lastactivation`, `user_alloweddays`, `user_photo`, `user_role`, `user_notes`, `user_lastmovementdate`, `user_lastmovementip`, `user_lastmovementwho`) VALUES
-('clayanine1', '52234223', 'ACTIVE', 'Claudia Yanneth Neira', 'clayanine@hotmail.com', '14e1b600b1fd579f47433b88e8d85291', 'es', 0, 'nombre de bebe', 'Mariana', NULL, NULL, 30, NULL, 'NONE,BASIC,ADMIN', 'Otro usuario', '2015-07-02 20:57:06', NULL, NULL),
-('diegotorres50', '80123856', 'ACTIVE', 'Diego Torres', 'diegotorres50@hotmail.com', '14e1b600b1fd579f47433b88e8d85291', 'es', 0, 'nombre de mascota de padres', 'falkor', '0000-00-00', NULL, 30, NULL, 'MASTER', 'Usuario de prueba', '2015-06-28 13:38:39', NULL, NULL),
-('user1', NULL, 'INACTIVE', '', 'user1', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:36:26', NULL, NULL),
-('user10', NULL, 'INACTIVE', '', 'user10', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
-('user11', NULL, 'INACTIVE', '', 'user11', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
-('user12', NULL, 'INACTIVE', '', 'user12', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
-('user13', NULL, 'INACTIVE', '', 'user13', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
-('user14', NULL, 'INACTIVE', '', 'user14', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
-('user15', NULL, 'INACTIVE', '', 'user15', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
-('user16', NULL, 'INACTIVE', '', 'user16', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
-('user2', NULL, 'INACTIVE', '', 'user2', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:36:26', NULL, NULL),
-('user3', NULL, 'INACTIVE', '', 'user3', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:36:26', NULL, NULL),
-('user4', NULL, 'INACTIVE', '', 'user4', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
-('user5', NULL, 'INACTIVE', '', 'user5', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
-('user6', NULL, 'INACTIVE', '', 'user6', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
-('user7', NULL, 'INACTIVE', '', 'user7', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
-('user8', NULL, 'INACTIVE', '', 'user8', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL),
-('user9', NULL, 'INACTIVE', '', 'user9', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL);
+INSERT INTO `Users` (`user_id`, `user_document`, `user_status`, `user_name`, `user_mail`, `user_pass`, `user_language`, `user_debugger`, `user_secretquestion`, `user_secretanswer`, `user_birthday`, `user_lastactivation`, `user_alloweddays`, `user_photo`, `user_role`, `user_notes`, `user_lastmovementdate`, `user_lastmovementip`, `user_lastmovementwho`, `purged`) VALUES
+('clayanine1', '52234223', 'ACTIVE', 'Claudia Yanneth Neira', 'clayanine@hotmail.com', '14e1b600b1fd579f47433b88e8d85291', 'es', 0, 'nombre de bebe', 'Mariana', NULL, NULL, 30, NULL, 'NONE,BASIC,ADMIN', 'Otro usuario', '2015-07-02 20:57:06', NULL, NULL, b'0'),
+('diegotorres50', '80123856', 'ACTIVE', 'Diego Torres', 'diegotorres50@hotmail.com', '14e1b600b1fd579f47433b88e8d85291', 'es', 0, 'nombre de mascota de padres', 'falkor', '0000-00-00', NULL, 30, NULL, 'MASTER', 'Usuario de prueba', '2015-06-28 13:38:39', NULL, NULL, b'0'),
+('user1', NULL, 'INACTIVE', '', 'user1', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:36:26', NULL, NULL, b'0'),
+('user10', NULL, 'INACTIVE', '', 'user10', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL, b'0'),
+('user11', NULL, 'INACTIVE', '', 'user11', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL, b'0'),
+('user12', NULL, 'INACTIVE', '', 'user12', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL, b'0'),
+('user13', NULL, 'INACTIVE', '', 'user13', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL, b'0'),
+('user14', NULL, 'INACTIVE', '', 'user14', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL, b'0'),
+('user15', NULL, 'INACTIVE', '', 'user15', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL, b'0'),
+('user16', NULL, 'INACTIVE', '', 'user16', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL, b'0'),
+('user2', NULL, 'INACTIVE', '', 'user2', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:36:26', NULL, NULL, b'0'),
+('user3', NULL, 'INACTIVE', '', 'user3', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:36:26', NULL, NULL, b'0'),
+('user4', NULL, 'INACTIVE', '', 'user4', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL, b'0'),
+('user5', NULL, 'INACTIVE', '', 'user5', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL, b'0'),
+('user6', NULL, 'INACTIVE', '', 'user6', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL, b'0'),
+('user7', NULL, 'INACTIVE', '', 'user7', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL, b'0'),
+('user8', NULL, 'INACTIVE', '', 'user8', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2015-06-29 19:38:33', NULL, NULL, b'0'),
+('user9', NULL, 'INACTIVE', '', 'user9', '74be16979710d4c4e7c6647856088456', 'es', 0, NULL, NULL, NULL, NULL, NULL, NULL, 'NONE', NULL, '2016-02-25 20:27:33', NULL, NULL, b'1');
 
 --
 -- Disparadores `Users`
@@ -230,7 +245,7 @@ DELIMITER $$
 CREATE TRIGGER `users_before_upd_tr` BEFORE UPDATE ON `Users` FOR EACH ROW BEGIN
 
 if NEW.user_pass <> old.user_pass then
-	SET NEW.user_pass = MD5(MD5(NEW.user_pass)); end if;  
+  SET NEW.user_pass = MD5(MD5(NEW.user_pass)); end if;  
 
 set NEW.user_lastmovementdate=now();
 END
@@ -377,7 +392,11 @@ INSERT INTO `logins` (`login_user_id`, `login_time`, `login_id`, `login_status`,
 ('diegotorres50', '2016-02-21 16:51:53', 00000000000000000072, 'CLOSED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '2016-02-21 16:49:49', 'THIS SESSION WAS CLOSED BY USER'),
 ('diegotorres50', '2016-02-21 22:50:02', 00000000000000000073, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
 ('diegotorres50', '2016-02-22 19:20:53', 00000000000000000074, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
-('diegotorres50', '2016-02-23 01:50:03', 00000000000000000075, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE');
+('diegotorres50', '2016-02-23 01:50:03', 00000000000000000075, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
+('diegotorres50', '2016-02-24 18:32:35', 00000000000000000076, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
+('diegotorres50', '2016-02-25 01:57:06', 00000000000000000077, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
+('diegotorres50', '2016-02-25 19:05:22', 00000000000000000078, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE'),
+('diegotorres50', '2016-02-26 00:29:52', 00000000000000000079, 'OPENED', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', 'PENDIENTE', '0000-00-00 00:00:00', 'PENDIENTE');
 
 -- --------------------------------------------------------
 
@@ -483,9 +502,9 @@ DELIMITER ;
 --
 DROP VIEW IF EXISTS `view_users`;
 CREATE TABLE `view_users` (
-`user_idtmp` varchar(20)
-,`user_statustmp` set('ACTIVE','INACTIVE')
-,`user_nametmo` varchar(200)
+`id` varchar(20)
+,`estado` set('ACTIVE','INACTIVE')
+,`nombre` varchar(200)
 );
 
 -- --------------------------------------------------------
@@ -508,7 +527,7 @@ CREATE TABLE `view_users_x_centers` (
 --
 DROP TABLE IF EXISTS `view_users`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`diego_torres`@`localhost` SQL SECURITY DEFINER VIEW `view_users`  AS  select `Users`.`user_id` AS `user_idtmp`,`Users`.`user_status` AS `user_statustmp`,`Users`.`user_name` AS `user_nametmo` from `Users` order by `Users`.`user_name` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`diego_torres`@`localhost` SQL SECURITY DEFINER VIEW `view_users`  AS  select `Users`.`user_id` AS `id`,`Users`.`user_status` AS `estado`,`Users`.`user_name` AS `nombre` from `Users` where (`Users`.`purged` = 0) order by `Users`.`user_name` ;
 
 -- --------------------------------------------------------
 
@@ -517,7 +536,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`diego_torres`@`localhost` SQL SECURITY DEFIN
 --
 DROP TABLE IF EXISTS `view_users_x_centers`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`diego_torres`@`localhost` SQL SECURITY DEFINER VIEW `view_users_x_centers`  AS  select `Users`.`user_id` AS `user_id`,`Users`.`user_name` AS `user_name`,`centers`.`center_id` AS `center_id`,`centers`.`center_name` AS `center_name` from ((`Users` join `centers`) join `users_x_centers`) where ((`Users`.`user_id` = `users_x_centers`.`users_x_centers_user_id`) and (`users_x_centers`.`users_x_centers_center_id` = `centers`.`center_id`)) order by `Users`.`user_name`,`centers`.`center_name` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`diego_torres`@`localhost` SQL SECURITY DEFINER VIEW `view_users_x_centers`  AS  select `Users`.`user_id` AS `user_id`,`Users`.`user_name` AS `user_name`,`centers`.`center_id` AS `center_id`,`centers`.`center_name` AS `center_name` from ((`Users` join `centers`) join `users_x_centers`) where ((`Users`.`user_id` = `users_x_centers`.`users_x_centers_user_id`) and (`users_x_centers`.`users_x_centers_center_id` = `centers`.`center_id`) and (`Users`.`purged` = 0)) order by `Users`.`user_name`,`centers`.`center_name` ;
 
 --
 -- Índices para tablas volcadas
@@ -559,7 +578,7 @@ ALTER TABLE `users_x_centers`
 -- AUTO_INCREMENT de la tabla `logins`
 --
 ALTER TABLE `logins`
-  MODIFY `login_id` bigint(20) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT COMMENT 'Un indice de secuencia que ayuda a indexar la tabla y a las busquedas de una sesion en particular', AUTO_INCREMENT=76;
+  MODIFY `login_id` bigint(20) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT COMMENT 'Un indice de secuencia que ayuda a indexar la tabla y a las busquedas de una sesion en particular', AUTO_INCREMENT=80;
 --
 -- Restricciones para tablas volcadas
 --
