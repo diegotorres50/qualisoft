@@ -5,9 +5,21 @@
 /app/logs/*
 !app/logs/.gitkeep
 /app/phpunit.xml
+/app/.DS_Store
+
 /bin/
+
+# @diegotorres50 ignoramos el composer, ya que son archivos locale que pueden variar de una instalacion o update a otro
 /composer.phar
 /composer.lock
+
+# @diegotorres50 ignoranos las librerias de terceros que se generan con la instalcion o el update del composer
 /vendor/
-/web/bundles/
-/app/.DS_Store
+
+# @diegotorres50 says ignoramos los bundles que symfony genera con la instalacion default
+/web/bundles/acmedemo/
+/web/bundles/framework/
+/web/bundles/sensiodistribution/
+
+# @diegotorres50 says el unico bundle que permitimos es el del propio proyecto qualisoft
+!web/bundles/qualisoftapp/
