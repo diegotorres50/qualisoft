@@ -6,74 +6,69 @@
     Hola {{app.session.get('userName')}}
 {% endblock %}
 
-{#
-    contenido de la pagina
-    #}
-{% block x_content %}
+{% block row_container %}
 
-    {#
-        contenido de las alertas debe ir debtro del content
+      
+    <!-- Alertas aqui, las clases diferenciaodoras: alert-success, alert-info
+    alert-warning y alert-danger -->
+
+    {% for flashMessage in app.session.flashbag.get('warning_msg') %}
+
+        {#
+        Incluimos la plantilla de la alerta
         #}
-    {% block content_alerts %}
+        {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+            'msgClass': 'alert-warning', 
+            'msgGlyphicon': 'glyphicon-exclamation-sign',
+            'msgTitle': 'Warning!',
+            'msgText': flashMessage }
+            ) 
+        }}
 
-        {% for flashMessage in app.session.flashbag.get('warning_msg') %}
+    {% endfor %} 
 
-            {#
-            Incluimos la plantilla de la alerta
-            #}
-            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
-                'msgClass': 'alert-warning', 
-                'msgGlyphicon': 'glyphicon-exclamation-sign',
-                'msgTitle': 'Warning!',
-                'msgText': flashMessage }
-                ) 
-            }}
+    {% for flashMessage in app.session.flashbag.get('info_msg') %}
 
-        {% endfor %} 
+        {#
+        Incluimos la plantilla de la alerta
+        #}
+        {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+            'msgClass': 'alert-info', 
+            'msgTitle': 'Info',
+            'msgText': flashMessage }
+            ) 
+        }}
 
-        {% for flashMessage in app.session.flashbag.get('info_msg') %}
+    {% endfor %}
 
-            {#
-            Incluimos la plantilla de la alerta
-            #}
-            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
-                'msgClass': 'alert-info', 
-                'msgTitle': 'Info',
-                'msgText': flashMessage }
-                ) 
-            }}
+    {% for flashMessage in app.session.flashbag.get('error_msg') %}
 
-        {% endfor %}
+        {#
+        Incluimos la plantilla de la alerta
+        #}
+        {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+            'msgClass': 'alert-danger', 
+            'msgGlyphicon': 'glyphicon-exclamation-sign',
+            'msgTitle': 'Error!',
+            'msgText': flashMessage }
+            ) 
+        }}        
 
-        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+    {% endfor %} 
 
-            {#
-            Incluimos la plantilla de la alerta
-            #}
-            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
-                'msgClass': 'alert-danger', 
-                'msgGlyphicon': 'glyphicon-exclamation-sign',
-                'msgTitle': 'Error!',
-                'msgText': flashMessage }
-                ) 
-            }}        
+    {% for flashMessage in app.session.flashbag.get('success_msg') %}
 
-        {% endfor %} 
+        {#
+        Incluimos la plantilla de la alerta
+        #}
+        {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+            'msgClass': 'alert-success', 
+            'msgTitle': ':)',
+            'msgText': flashMessage }
+            ) 
+        }} 
 
-        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+    {% endfor %} 
 
-            {#
-            Incluimos la plantilla de la alerta
-            #}
-            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
-                'msgClass': 'alert-success', 
-                'msgTitle': ':)',
-                'msgText': flashMessage }
-                ) 
-            }} 
-
-        {% endfor %}                
-
-    {% endblock %}            
 
 {% endblock %}

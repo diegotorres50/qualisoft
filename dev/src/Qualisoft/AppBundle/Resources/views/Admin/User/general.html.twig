@@ -1,197 +1,236 @@
-{#
-    @diegotorres50: Esta es la plantilla de la lista de usuarios
-
-    #}
+{# @diegotorres50: Esta es la plantilla de la lista de usuarios #}
 
 {#Heredamos ek layout con todas las caracteristicas del frontend#}
 {% extends 'QualisoftAppBundle::layout.html.twig' %} 
 
-{#
-    titulo de la pagina
-    #}
-{% block title %}
-    {{ view_info.title }}
-{% endblock %}
+{% block row_container %}
+<!-- Inicia primer super contenedor de modulos -->
 
-{#
-    titulo del modulo
-    #}
-{% block module_title %}
-    {{ view_info.module_title }}
-{% endblock %}    
+    <div class="row">
 
-{#
-    subtitulo del modulo
-    #}
-{% block module_subtitle %}
-    {{ view_info.module_subtitle }}
-{% endblock %}
+        <!-- Inicia primer modulo del super contenedor de modulos -->
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
 
-{#
-    descripcion del modulo
-    #}
-{% block content_lead %}
-    {{ view_info.module_lead }}
-{% endblock %}
+                <!-- bloque del subtitulo //-->
+                <div class="x_title">
 
-{#
-Incluimos la plantilla del menu herramientas del modulo
-#}
-{% block module_toolsmenu %}
-
-<li class="dropdown">
-    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-    <ul class="dropdown-menu" role="menu">
-        <li><a href="{{ path('qualisoft_admin_user_general', { 'offset': 0, 'row_count': 5, 'filter': 'disabled'}) }}">Remover filtros</a></li>
-    </ul>
-</li>
-
-{% endblock %}
-
-{#
-    contenido de la pagina
-    #}
-{% block x_content %}
-
-    {#
-        contenido de las alertas debe ir debtro del content
-        #}
-    {% block content_alerts %}
-
-        {% for flashMessage in app.session.flashbag.get('warning_msg') %}
-
-            {#
-            Incluimos la plantilla de la alerta
-            #}
-            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
-                'msgClass': 'alert-warning', 
-                'msgGlyphicon': 'glyphicon-exclamation-sign',
-                'msgTitle': 'Warning!',
-                'msgText': flashMessage }
-                ) 
-            }}
-
-        {% endfor %} 
-
-        {% for flashMessage in app.session.flashbag.get('info_msg') %}
-
-            {#
-            Incluimos la plantilla de la alerta
-            #}
-            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
-                'msgClass': 'alert-info', 
-                'msgTitle': 'Info',
-                'msgText': flashMessage }
-                ) 
-            }}
-
-        {% endfor %}
-
-        {% for flashMessage in app.session.flashbag.get('error_msg') %}
-
-            {#
-            Incluimos la plantilla de la alerta
-            #}
-            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
-                'msgClass': 'alert-danger', 
-                'msgGlyphicon': 'glyphicon-exclamation-sign',
-                'msgTitle': 'Error!',
-                'msgText': flashMessage }
-                ) 
-            }}        
-
-        {% endfor %} 
-
-        {% for flashMessage in app.session.flashbag.get('success_msg') %}
-
-            {#
-            Incluimos la plantilla de la alerta
-            #}
-            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
-                'msgClass': 'alert-success', 
-                'msgTitle': ':)',
-                'msgText': flashMessage }
-                ) 
-            }} 
-
-        {% endfor %}                
-
-    {% endblock %}
-
-    {#
-    Aqui va el contenido principal
-    #}
-
-    <div class="accordion" id="accordion1" role="tablist" aria-multiselectable="true">
-
-        <!-- Inicio Primer panel//-->
-        <div class="panel">
-            <a class="panel-heading" role="tab" id="headingOne1" data-toggle="collapse" data-parent="#accordion1" href="#collapseOne1" aria-expanded="true" aria-controls="collapseOne">
-                <h4 class="panel-title">Lista de resultados</h4>
-            </a>
-            <div id="collapseOne1" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne" aria-expanded="true">
-                <div class="panel-body">
-
-                {#
-                Incluimos la plantilla de los resultados de busqueda
-                #}
-                {{ include('QualisoftAppBundle:Admin/User:lookup_results.html.twig', { 
-                    'rows_found': rows_found, 
-                    'cols': cols,
-                    'pages_total': pages_total,
-                    'total': total,
-                    'pagination': pagination}
-                    ) 
-                }}
+                    <h2>Lista de usuarios</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                        <!-- Bloque de menu de herramientas //-->
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="{{ path('qualisoft_admin_user_general', { 'offset': 0, 'row_count': 5, 'filter': 'disabled'}) }}">Remover filtros</a></li>
+                            </ul>
+                        </li>
+                        <!-- Fin bloque de opcion de herramientas -->
+                        <li><a class="close-link"><i class="fa fa-close"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
 
                 </div>
+                <!-- /bloque del subtitulo //-->
+
+                <div class="x_content">
+      
+                    <!-- Alertas aqui, las clases diferenciaodoras: alert-success, alert-info
+                    alert-warning y alert-danger -->
+
+                    {% for flashMessage in app.session.flashbag.get('warning_msg') %}
+
+                        {#
+                        Incluimos la plantilla de la alerta
+                        #}
+                        {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+                            'msgClass': 'alert-warning', 
+                            'msgGlyphicon': 'glyphicon-exclamation-sign',
+                            'msgTitle': 'Warning!',
+                            'msgText': flashMessage }
+                            ) 
+                        }}
+
+                    {% endfor %} 
+
+                    {% for flashMessage in app.session.flashbag.get('info_msg') %}
+
+                        {#
+                        Incluimos la plantilla de la alerta
+                        #}
+                        {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+                            'msgClass': 'alert-info', 
+                            'msgTitle': 'Info',
+                            'msgText': flashMessage }
+                            ) 
+                        }}
+
+                    {% endfor %}
+
+                    {% for flashMessage in app.session.flashbag.get('error_msg') %}
+
+                        {#
+                        Incluimos la plantilla de la alerta
+                        #}
+                        {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+                            'msgClass': 'alert-danger', 
+                            'msgGlyphicon': 'glyphicon-exclamation-sign',
+                            'msgTitle': 'Error!',
+                            'msgText': flashMessage }
+                            ) 
+                        }}        
+
+                    {% endfor %} 
+
+                    {% for flashMessage in app.session.flashbag.get('success_msg') %}
+
+                        {#
+                        Incluimos la plantilla de la alerta
+                        #}
+                        {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+                            'msgClass': 'alert-success', 
+                            'msgTitle': ':)',
+                            'msgText': flashMessage }
+                            ) 
+                        }} 
+
+                    {% endfor %} 
+
+                    <!--
+                    <div class="alert alert-success alert-dismissible fade in" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+                        </button>
+                        <strong>Holy guacamole!</strong> Best check yo self, you're not looking too good.
+                    </div>
+                    -->
+
+                    <!--  Fin de alertas -->
+
+                    <p>Modique un usuario.</p>
+
+                    <!-- contenido principal aqui -->
+
+                    <div class="accordion" id="accordion1" role="tablist" aria-multiselectable="true">
+
+                        <!-- Inicio Primer panel//-->
+                        <div class="panel">
+                            <a class="panel-heading" role="tab" id="headingOne1" data-toggle="collapse" data-parent="#accordion1" href="#collapseOne1" aria-expanded="true" aria-controls="collapseOne">
+                                <h4 class="panel-title">Lista de resultados</h4>
+                            </a>
+                            <div id="collapseOne1" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne" aria-expanded="true">
+                                <div class="panel-body">
+
+                                {#
+                                Incluimos la plantilla de los resultados de busqueda
+                                #}
+                                {{ include('QualisoftAppBundle:Admin/User:lookup_results.html.twig', { 
+                                    'rows_found': rows_found, 
+                                    'cols': cols,
+                                    'pages_total': pages_total,
+                                    'total': total,
+                                    'pagination': pagination}
+                                    ) 
+                                }}
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Fin Primer panel//-->
+
+                        <!-- Inicio Segundo panel//-->
+                        <div class="panel">
+                            <a class="panel-heading collapsed" role="tab" id="headingTwo1" data-toggle="collapse" data-parent="#accordion1" href="#collapseTwo1" aria-expanded="false" aria-controls="collapseTwo">
+                                <h4 class="panel-title">Busqueda b&aacute;sica</h4>
+                            </a>
+                            <div id="collapseTwo1" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo" aria-expanded="false" style="height: 0px;">
+                                <div class="panel-body">
+
+                                {#
+                                Incluimos la plantilla de la busqueda básica
+                                #}
+                                {{ include('QualisoftAppBundle:Admin/User:basic_lookup.html.twig') }}
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Fin Segundo panel//-->
+
+                        <!-- Inicio Tercer panel//-->
+                        <div class="panel">
+                            <a class="panel-heading collapsed" role="tab" id="headingTwo1" data-toggle="collapse" data-parent="#accordion1" href="#collapseThree1" aria-expanded="false" aria-controls="collapseTwo">
+                                <h4 class="panel-title">Busqueda avanzada</h4>
+                            </a>
+                            <div id="collapseThree1" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo" aria-expanded="false" style="height: 0px;">
+                                <div class="panel-body">
+
+                                {#
+                                Incluimos la plantilla de la busqueda básica
+                                #}
+                                {{ include('QualisoftAppBundle:Admin/User:advance_lookup.html.twig') }}
+
+                                </div>
+                            </div>
+                        </div> 
+                        <!-- Fin Tercer panel//-->
+
+                    </div>
+
+                    <!-- /contenido principal termina aqui -->
+
+                </div>
+
             </div>
+
         </div>
-        <!-- Fin Primer panel//-->
-
-        <!-- Inicio Segundo panel//-->
-        <div class="panel">
-            <a class="panel-heading collapsed" role="tab" id="headingTwo1" data-toggle="collapse" data-parent="#accordion1" href="#collapseTwo1" aria-expanded="false" aria-controls="collapseTwo">
-                <h4 class="panel-title">Busqueda b&aacute;sica</h4>
-            </a>
-            <div id="collapseTwo1" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo" aria-expanded="false" style="height: 0px;">
-                <div class="panel-body">
-
-                {#
-                Incluimos la plantilla de la busqueda básica
-                #}
-                {{ include('QualisoftAppBundle:Admin/User:basic_lookup.html.twig') }}
-
-                </div>
-            </div>
-        </div>
-        <!-- Fin Segundo panel//-->
-
-        <!-- Inicio Tercer panel//-->
-        <div class="panel">
-            <a class="panel-heading collapsed" role="tab" id="headingTwo1" data-toggle="collapse" data-parent="#accordion1" href="#collapseThree1" aria-expanded="false" aria-controls="collapseTwo">
-                <h4 class="panel-title">Busqueda avanzada</h4>
-            </a>
-            <div id="collapseThree1" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo" aria-expanded="false" style="height: 0px;">
-                <div class="panel-body">
-
-                {#
-                Incluimos la plantilla de la busqueda básica
-                #}
-                {{ include('QualisoftAppBundle:Admin/User:advance_lookup.html.twig') }}
-
-                </div>
-            </div>
-        </div> 
-        <!-- Fin Tercer panel//-->
+        <!-- Fin primer modulo del super contenedor de modulos -->
 
     </div>
+    <!-- Fin primer super contenedor de modulos -->
+
+    <!-- En dadelante puede agregar mas super contenedores de modulos como se necesite en la vista -->
+    <!-- Inicia primer super contenedor de modulos -->
+
+    <!--
+    <div class="row">
+
+        Inicia primer modulo del super contenedor de modulos
+        <div class="col-md-12 col-sm-12 col-xs-12">...</div>
+        <div class="col-md-12 col-sm-12 col-xs-12">...</div>
+        ...
+        <div class="col-md-12 col-sm-12 col-xs-12">...</div>
+
+    </div>
+    -->
+
+    <!--
+    <div class="row">
+
+        Inicia primer modulo del super contenedor de modulos
+        <div class="col-md-12 col-sm-12 col-xs-12">...</div>
+        <div class="col-md-12 col-sm-12 col-xs-12">...</div>
+        ...
+        <div class="col-md-12 col-sm-12 col-xs-12">...</div>
+
+    </div>
+    -->
+
+    <!--
+    <div class="row">
+
+        Inicia primer modulo del super contenedor de modulos
+        <div class="col-md-12 col-sm-12 col-xs-12">...</div>
+        <div class="col-md-12 col-sm-12 col-xs-12">...</div>
+        ...
+        <div class="col-md-12 col-sm-12 col-xs-12">...</div>
+
+    </div>
+    -->
 
 {% endblock %}
 
-{#
-    Incluimos en el footer la logica del validator
-    #}
+{# Incluimos en el footer la logica del validator.#}
 {% block footer_javascripts %}
 
     {{ parent() }}

@@ -1,158 +1,215 @@
-{#
-    @diegotorres50: Esta es la plantilla del login de Qualisoft
-
-    #}
+{# @diegotorres50: Esta es la plantilla del login de Qualisoft #}
 
 {#Heredamos ek layout con todas las caracteristicas del frontend#}
 {% extends 'QualisoftAppBundle::layout.html.twig' %} 
 
-{#
-    titulo de la pagina
-    #}
-{% block title %}
-    {{ view_info.title }}
-{% endblock %}
+{% block row_container %}
+    <!-- Inicia primer super contenedor de modulos -->
+    <div class="row">
 
-{#
-    titulo del modulo
-    #}
-{% block module_title %}
-    {{ view_info.module_title }}
-{% endblock %}    
+        <!-- Inicia primer modulo del super contenedor de modulos -->
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
 
-{#
-    subtitulo del modulo
-    #}
-{% block module_subtitle %}
-    {{ view_info.module_subtitle }}
-{% endblock %}
+                <!-- bloque del subtitulo //-->
+                <div class="x_title">
 
-{#
-    descripcion del modulo
-    #}
-{% block content_lead %}
-    {{ view_info.module_lead }}
-{% endblock %}
+                    <h2>Lista de usuarios</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                        <!-- Bloque de menu de herramientas //-->
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="{{ path('qualisoft_admin_user_general', { 'offset': 0, 'row_count': 5, 'filter': 'disabled'}) }}">Remover filtros</a></li>
+                            </ul>
+                        </li>
+                        <!-- Fin bloque de opcion de herramientas -->
+                        <li><a class="close-link"><i class="fa fa-close"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
 
-{#
-    contenido de la pagina
-    #}
-{% block x_content %}
+                </div>
+                <!-- /bloque del subtitulo //-->
 
-    {#
-        contenido de las alertas debe ir debtro del content
-        #}
-    {% block content_alerts %}
+                <div class="x_content">
+      
+                    <!-- Alertas aqui, las clases diferenciaodoras: alert-success, alert-info
+                    alert-warning y alert-danger -->
 
-        {% for flashMessage in app.session.flashbag.get('warning_msg') %}
+                    {% for flashMessage in app.session.flashbag.get('warning_msg') %}
 
-            {#
-            Incluimos la plantilla de la alerta
-            #}
-            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
-                'msgClass': 'alert-warning', 
-                'msgGlyphicon': 'glyphicon-exclamation-sign',
-                'msgTitle': 'Warning!',
-                'msgText': flashMessage }
-                ) 
-            }}
+                        {#
+                        Incluimos la plantilla de la alerta
+                        #}
+                        {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+                            'msgClass': 'alert-warning', 
+                            'msgGlyphicon': 'glyphicon-exclamation-sign',
+                            'msgTitle': 'Warning!',
+                            'msgText': flashMessage }
+                            ) 
+                        }}
 
-        {% endfor %} 
+                    {% endfor %} 
 
-        {% for flashMessage in app.session.flashbag.get('info_msg') %}
+                    {% for flashMessage in app.session.flashbag.get('info_msg') %}
 
-            {#
-            Incluimos la plantilla de la alerta
-            #}
-            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
-                'msgClass': 'alert-info', 
-                'msgTitle': 'Info',
-                'msgText': flashMessage }
-                ) 
-            }}
+                        {#
+                        Incluimos la plantilla de la alerta
+                        #}
+                        {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+                            'msgClass': 'alert-info', 
+                            'msgTitle': 'Info',
+                            'msgText': flashMessage }
+                            ) 
+                        }}
 
-        {% endfor %}
+                    {% endfor %}
 
-        {% for flashMessage in app.session.flashbag.get('error_msg') %}
+                    {% for flashMessage in app.session.flashbag.get('error_msg') %}
 
-            {#
-            Incluimos la plantilla de la alerta
-            #}
-            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
-                'msgClass': 'alert-danger', 
-                'msgGlyphicon': 'glyphicon-exclamation-sign',
-                'msgTitle': 'Error!',
-                'msgText': flashMessage }
-                ) 
-            }}        
+                        {#
+                        Incluimos la plantilla de la alerta
+                        #}
+                        {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+                            'msgClass': 'alert-danger', 
+                            'msgGlyphicon': 'glyphicon-exclamation-sign',
+                            'msgTitle': 'Error!',
+                            'msgText': flashMessage }
+                            ) 
+                        }}        
 
-        {% endfor %} 
+                    {% endfor %} 
 
-        {% for flashMessage in app.session.flashbag.get('success_msg') %}
+                    {% for flashMessage in app.session.flashbag.get('success_msg') %}
 
-            {#
-            Incluimos la plantilla de la alerta
-            #}
-            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
-                'msgClass': 'alert-success', 
-                'msgTitle': ':)',
-                'msgText': flashMessage }
-                ) 
-            }} 
+                        {#
+                        Incluimos la plantilla de la alerta
+                        #}
+                        {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+                            'msgClass': 'alert-success', 
+                            'msgTitle': ':)',
+                            'msgText': flashMessage }
+                            ) 
+                        }} 
 
-        {% endfor %}                
+                    {% endfor %} 
 
-    {% endblock %}
+                    <!--
+                    <div class="alert alert-success alert-dismissible fade in" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+                        </button>
+                        <strong>Holy guacamole!</strong> Best check yo self, you're not looking too good.
+                    </div>
+                    -->
 
-    {#
-    Aqui va el formulario
-    #}
-    {{ form_start(form, {'attr': {'id': 'login-form', 'class': 'form-horizontal form-label-left', 'data-parsley-validate': null}}) }}
+                    <!--  Fin de alertas -->
 
-        {#
-        Incluimos la plantilla de la alerta y
-        Renderizamos la lista de errores como resultado de la validacion del formulario
-        #}
-        {% if form_errors(form) is not empty %}
-            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
-                'msgClass': 'alert-warning', 
-                'msgGlyphicon': 'glyphicon-exclamation-sign',
-                'msgTitle': 'Warning!',
-                'msgText': form_errors(form) } 
-                ) 
-            }}
-        {% endif %}            
-        {# ojo, form_errors(form) no escapa las etiquetas <ul><li>, hay que revisarlo#}
+                    <p>Modique un usuario.</p>
 
-        <span class="section">Login</span>
+                    <!-- contenido principal aqui -->
 
-        <div class="item form-group">
-            {{ form_label(form.userId) }}
-            <div class="col-md-6 col-sm-6 col-xs-12">
-                {{ form_widget(form.userId) }}
-                {{ form_errors(form.userId) }}
+                    {#
+                    Aqui va el formulario
+                    #}
+                    {{ form_start(form, {'attr': {'id': 'login-form', 'class': 'form-horizontal form-label-left', 'data-parsley-validate': null}}) }}
+
+                        {#
+                        Incluimos la plantilla de la alerta y
+                        Renderizamos la lista de errores como resultado de la validacion del formulario
+                        #}
+                        {% if form_errors(form) is not empty %}
+                            {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+                                'msgClass': 'alert-warning', 
+                                'msgGlyphicon': 'glyphicon-exclamation-sign',
+                                'msgTitle': 'Warning!',
+                                'msgText': form_errors(form) } 
+                                ) 
+                            }}
+                        {% endif %}            
+                        {# ojo, form_errors(form) no escapa las etiquetas <ul><li>, hay que revisarlo#}
+
+                        <span class="section">Login</span>
+
+                        <div class="item form-group">
+                            {{ form_label(form.userId) }}
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                {{ form_widget(form.userId) }}
+                                {{ form_errors(form.userId) }}
+                            </div>
+                        </div>
+
+                        <div class="item form-group">
+                            {{ form_label(form.userPass) }}
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                {{ form_widget(form.userPass) }}
+                                {{ form_errors(form.userPass) }}
+                            </div>
+                        </div>
+
+                        <div class="ln_solid"></div>
+                        <div class="form-group">
+                            <div class="col-md-6 col-md-offset-3">
+                                {{ form_widget(form.sendData) }}
+                            </div>
+                        </div>
+
+                    {{ form_end(form) }}  
+
+                    <!-- /fin contenido principal termina aqui -->
+
+                </div>
+
             </div>
-        </div>
 
-        <div class="item form-group">
-            {{ form_label(form.userPass) }}
-            <div class="col-md-6 col-sm-6 col-xs-12">
-                {{ form_widget(form.userPass) }}
-                {{ form_errors(form.userPass) }}
-            </div>
         </div>
+        <!-- Fin primer modulo del super contenedor de modulos -->
 
-        <div class="ln_solid"></div>
-        <div class="form-group">
-            <div class="col-md-6 col-md-offset-3">
-                {{ form_widget(form.sendData) }}
-            </div>
-        </div>
+    </div>
+    <!-- Fin primer super contenedor de modulos -->
 
-    {{ form_end(form) }}    
+    <!-- En dadelante puede agregar mas super contenedores de modulos como se necesite en la vista -->
+    <!-- Inicia primer super contenedor de modulos -->
+
+    <!--
+    <div class="row">
+
+        Inicia primer modulo del super contenedor de modulos
+        <div class="col-md-12 col-sm-12 col-xs-12">...</div>
+        <div class="col-md-12 col-sm-12 col-xs-12">...</div>
+        ...
+        <div class="col-md-12 col-sm-12 col-xs-12">...</div>
+
+    </div>
+    -->
+
+    <!--
+    <div class="row">
+
+        Inicia primer modulo del super contenedor de modulos
+        <div class="col-md-12 col-sm-12 col-xs-12">...</div>
+        <div class="col-md-12 col-sm-12 col-xs-12">...</div>
+        ...
+        <div class="col-md-12 col-sm-12 col-xs-12">...</div>
+
+    </div>
+    -->
+
+    <!--
+    <div class="row">
+
+        Inicia primer modulo del super contenedor de modulos
+        <div class="col-md-12 col-sm-12 col-xs-12">...</div>
+        <div class="col-md-12 col-sm-12 col-xs-12">...</div>
+        ...
+        <div class="col-md-12 col-sm-12 col-xs-12">...</div>
+
+    </div>
+    -->
 
 {% endblock %}
-
 
 {#
     Incluimos en el footer la logica del validator
