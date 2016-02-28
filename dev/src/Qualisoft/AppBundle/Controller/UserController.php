@@ -149,20 +149,82 @@ class UserController extends Controller
 
         }  
 
+/////////////////////////////////////////
+
+
+        //Para ayudar la logica del formulario, seteramos un query string para que al cargar la pagina
+        //sepamos que debemos conservar los criterios de la busqueda
+        $form_newRecord = $this->createFormBuilder($defaultData)
+            ->setAction($this->generateUrl('qualisoft_admin_user_general'))
+            ->setMethod('POST')
+            //->setAttribute('class', 'form-horizontal')) Tarea: como agregar atriburos custom al form tag
+            ->add('userId', 'text', array(
+                'constraints' => array(
+                    new NotBlank(
+                        array(
+                            'message' => 'Por favor indique el usuario.')
+                        ),
+                 ),
+                'label' => 'Usuario*', 
+                'label_attr' => array('class' => 'control-label col-md-3'),
+                'mapped' => true, //el campo dejar de ser omitido al leer o escribir el objeto, en false el valor no aparece en el array de datos obtenidos
+                'required' => true,
+                'error_bubbling' => true,
+                'attr' => array(
+                    'class' => 'form-control',
+                    'data-validate-words' => '1', //Valida campo en javascript, https://github.com/yairEO/validator
+                    'placeholder' => 'Escribe tu usuario.',
+                    ),                
+                'empty_data'  => null,         
+                )
+            )
+            ->add('userPass', 'password', array(
+                'constraints' => array(
+                    new NotBlank(
+                        array(
+                            'message' => 'Por favor indique la clave.')
+                        ),
+                 ),
+                'label' => 'Clave:', 
+                'label_attr' => array('class' => 'control-label col-md-3'),
+                'mapped' => true, //el campo dejar de ser omitido al leer o escribir el objeto, en false el valor no aparece en el array de datos obtenidos                'required' => true,
+                'error_bubbling' => true,
+                'attr' => array(
+                    'class' => 'form-control',
+                    'placeholder' => 'Escribe tu clave.',
+                    ),                
+                'empty_data'  => null,                 
+                )
+            )
+            ->add('cancelData', 'reset', array(
+                'attr' => array(
+                    'class' => 'btn btn-primary',
+                    ),
+                'label' => 'Cancelar',
+                )
+             )            
+            ->add('sendData', 'submit', array(
+                'attr' => array(
+                    'class' => 'btn btn-success',
+                    ),
+                'label' => 'Guardar',
+                )
+             )      
+            ->getForm();
+     
+        /**
+         *  El método handleRequest() detecta que el formulario no se ha enviado y por tanto, no hace nada.
+         *  Cuando el usuario envía el formulario, el método handleRequest() lo detecta y guarda inmediatamente los datos enviados en las propiedades task y dueDate del objeto $task. 
+         */
+        //$form_newRecord->handleRequest($request);
+
+
+/////////////////////////////////////////        
+
+
         /*
          * Termina logica para definir formulario de busqueda basica       
         */
-
-        /**
-         * [$view_info description datos generales de la vista a renderizar]
-         * @var array
-         */
-        $view_info = array(
-                    'title' => 'Usuarios',
-                    'module_title' => 'Usuarios',
-                    'module_subtitle' => 'Lista de Usuarios',
-                    'module_lead' => 'Modifique el usuario.', 
-                    );
 
         //Instanciamos el modelo de conexion mysql usando el modelo de conexion
         $m = new Model(
@@ -251,7 +313,6 @@ class UserController extends Controller
         // OJO, CUANDO SE USA MAS DE DOS NIVELES DE DIRECTORIOS, SE DEBE USAR EL SLASH /
         return $this->render('QualisoftAppBundle:Admin/User:general.html.twig', 
             array(
-                'view_info' => $view_info, //Datos estaticos y generales informativos de la vista
                 'rows_found' => $_getRecords['rows_found'], //Aaray de filas encontradas del query
                 'total' => $_getRecords['total'], //Total de registros en la tabla sin limitar
                 //'cols' => array_values($values['FIELDS']), //Nombres de campos que se muestran en la grilla
@@ -260,7 +321,8 @@ class UserController extends Controller
                 'current_page' => $_current_page, //Pagina actual o grupo actual del paginador para destacar la pagina actual en la vista
                 'page_records' => $row_count, //Paginacion: cantidad de registros que se muestran por pagina
                 'pagination' => $this->getPagination($_pages_total, $_current_page, $row_count, 'qualisoft_admin_user_general'),
-                'form_basic_lookup' => $form_basicLookup->createView()
+                'form_basic_lookup' => $form_basicLookup->createView(),
+                'form_new_record' => $form_newRecord->createView()
                 )
             );
     }
@@ -324,10 +386,73 @@ class UserController extends Controller
                         'error_msg',
                         $_setToPurge['errorMsg']
                     );
+        } else {
+            //Sino tenemos variables de error, confirmamos exito
+            $this->get('session')->getFlashBag()->add(
+                        'success_msg',
+                        'El registro: ' . $id_value . ' ha sido marcado para purga!!!'
+                );
         }
         //
         
         return $this->redirect($this->generateUrl('qualisoft_admin_user_general'));
+
+    }
+
+     /**
+     * @Route("admin/user/new", name="qualisoft_admin_user_new_module")   
+     */
+    public function new_moduleAction(Request $request)
+    {
+
+        //DEBEMOS CONTROLAR QUE ESTA TEMPLATE SOLO SEA VISIBLE PARA USUARIOS MASTER
+
+        /**
+         * Inicia logica verificacion de autenticaccion y acceso mediante las sesiones.
+         */
+
+        $session=$request->getSession(); //Instanciamos la sesion del navegador
+
+        if(!$session->has("userId")) //Si en la sesion del browser no esta seteada la variable userId
+        {
+            //Usamos getFlashBag() para renderizar la alerta de que no esta logueado
+            $this->get('session')->getFlashBag()->add(
+                               'warning_msg',
+                               'Debe estar logueado para ver este contenido.'
+                           );
+            
+            //Dirigimos al login para que haga su autenticacion primero
+            return $this->redirect($this->generateUrl('qualisoft_security_login'));
+
+        } elseif(!$session->has("userRole") || !in_array('MASTER', Config::$ROLES[$session->get("userRole")])) { //Si no se tiene el role de usuario en la sesion o no esta en el array de configuracion de qualisoft es porque no es un usuario con perfil de MASTER
+
+            $this->get('session')->getFlashBag()->add(
+                               'warning_msg',
+                               'El usuario no tiene suficientes permisos ' . $session->get("userRole") . ' para crear registros.'
+                           );
+            
+            // redirect the user to where they were before the login process begun.
+            $referer_url = $request->headers->get('referer');
+                        
+            if(!empty($referer_url)) return $this->redirect($request->headers->get('referer'));
+            else return $this->redirect($this->generateUrl('qualisoft_default_homepage')); //Por defecto al home sino hay referrer
+        }
+
+        /**
+         * Termina logica verificacion de autenticaccion y acceso.
+         */
+
+        // Logica general
+
+        //
+        
+        // ... renderiza la vista ...
+        // OJO, CUANDO SE USA MAS DE DOS NIVELES DE DIRECTORIOS, SE DEBE USAR EL SLASH /
+        return $this->render('QualisoftAppBundle:Admin/User:new_module.html.twig', 
+            array(
+                'data' => 'cualquier cosa'
+                )
+            );
 
     }
 

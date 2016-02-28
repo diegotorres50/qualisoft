@@ -315,3 +315,74 @@ $(document).ready(function () {
 
 });
 /** ******  /scrollview  *********************** **/
+
+/** ******  @diegotorres50 says: listener general personalizado para varias funciones *********************** **/
+$(document).ready(function () {
+  
+    console.log('Deploy: ' + $( "body" ).data('deploy_id'));
+
+    //Listener sobre la tabla de resultados encontrados de las vistas (clic a los botones de cada registro)
+    $("#records_list").click(function(event)
+    {
+
+        // Al click reconocememos quien es el elemento que dispara el click
+        // para saber si es el boton eliminar, ver o modificar
+        var eTarget = $(event.target).data('event');
+
+        console.log('Evento: ' + eTarget);
+
+        // Si fue click al boton eliminar un unico registro
+        if (eTarget == 'deleteThisRecord'){
+            //debugger;
+            // NOTA: OJO CON LA SINTAXIS DEL SELECTOR MAS EL THIS, DEBE SER
+            // DE ESTA MANERA PARA TRATAR LOS EVENTOS DE MANERA
+            // INDEPENDIENTE
+
+            console.log('Mensaje: ' + $(event.target).data('msg'));
+
+            // El dialogo de advertencia que se muestra antes de borrar un registro debe ser
+            // preconfigurado (basado en jquery UI)  
+            $( "#dialog-confirm-to-delete-one-record" ).dialog({
+                title: $(event.target).data('msg'), //El titulo cabezote de la alerta
+                resizable: true,
+                autoOpen: false,
+                //height:300,
+                //width: 400,
+                modal: true, //Para que el mensaje invada todo el despliegue
+                buttons: [
+                    {
+                        text: "Borrar registro", //Label del boton
+                        click: function() {
+                            //debugger;
+                            $( this ).dialog( "close" ); //Cierra la alerta                            
+                            //$(event.target).attr('href', $(event.target).data('href'));
+                            //$(event.target).click();
+                            location.href=$(event.target).data('href'); //Se carga la url del controlador que se encarga de borrar el registro
+                        }
+                    },
+                    {
+                        text: "Cancelar",
+                        click: function() {
+                            $( this ).dialog( "close" );
+                        }
+                    }
+                ]
+            });
+
+            //Abrimos el dialogo
+            $( "#dialog-confirm-to-delete-one-record" ).dialog( "open" );
+            event.preventDefault();
+            
+        }
+                
+    });
+        
+});
+/** ******  /general  *********************** **/
+
+/** ******  @diegotorres50 says: devuelve el identificador del despliegue  *********************** **/
+if (!window.getDeployId) {
+    window.getDeployId = function() {
+        return $( "body" ).data('deploy_id') ? $( "body" ).data('deploy_id') : 'unknown :(';
+    };
+};

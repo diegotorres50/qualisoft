@@ -1,0 +1,47 @@
+{#
+Aqui va el formulario
+#}
+{{ form_start(form_new_record, {'attr': {'id': 'new-record-form', 'class': 'form-horizontal form-label-left', 'data-parsley-validate': null}}) }}
+
+    {#
+    Incluimos la plantilla de la alerta y
+    Renderizamos la lista de errores como resultado de la validacion del formulario
+    #}
+    {% if form_errors(form_new_record) is not empty %}
+        {{ include('QualisoftAppBundle:Layout:alerts.html.twig', { 
+            'msgClass': 'alert-warning', 
+            'msgGlyphicon': 'glyphicon-exclamation-sign',
+            'msgTitle': 'Warning!',
+            'msgText': form_errors(form_new_record) } 
+            ) 
+        }}
+    {% endif %}            
+    {# ojo, form_errors(form) no escapa las etiquetas <ul><li>, hay que revisarlo#}
+
+    <span class="section">Nuevo usuario</span>
+
+    <div class="item form-group">
+        {{ form_label(form_new_record.userId) }}
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            {{ form_widget(form_new_record.userId) }}
+            {{ form_errors(form_new_record.userId) }}
+        </div>
+    </div>
+
+    <div class="item form-group">
+        {{ form_label(form_new_record.userPass) }}
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            {{ form_widget(form_new_record.userPass) }}
+            {{ form_errors(form_new_record.userPass) }}
+        </div>
+    </div>
+
+    <div class="ln_solid"></div>
+    <div class="form-group">
+        <div class="col-md-6 col-md-offset-3">
+            {{ form_widget(form_new_record.cancelData) }}
+            {{ form_widget(form_new_record.sendData) }}
+        </div>
+    </div>
+
+{{ form_end(form_new_record) }}  

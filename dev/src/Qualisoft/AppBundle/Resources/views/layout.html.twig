@@ -12,6 +12,10 @@
 
     <!-- Bootstrap core CSS -->
     {% block stylesheets %}
+
+    <!-- Para los dialogBox -->    
+    <link rel="stylesheet" href="{{ asset('bundles/qualisoftapp/js/jquery-ui-1.11.4.custom/jquery-ui.css') }}">    
+
     <link href="{{ asset('bundles/qualisoftapp/css/bootstrap.min.css') }}" rel="stylesheet">
 
     <link href="{{ asset('bundles/qualisoftapp/fonts/css/font-awesome.min.css') }}" rel="stylesheet">
@@ -24,6 +28,9 @@
 
     {% block header_javascripts %}
     <script src="{{ asset('bundles/qualisoftapp/js/jquery.min.js') }}"></script>
+
+    <!-- Para los dialogBox -->
+    <script src="{{ asset('bundles/qualisoftapp/js/jquery-ui-1.11.4.custom/jquery-ui.js') }}"></script>
     {% endblock %}
     
 
@@ -42,7 +49,7 @@
 </head>
 
 
-<body class="nav-md">
+<body class="nav-md" {% block deploy_id %}data-deploy_id="default"{% endblock %}>
 
     <div class="container body">
 

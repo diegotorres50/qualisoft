@@ -3,8 +3,12 @@
 {#Heredamos ek layout con todas las caracteristicas del frontend#}
 {% extends 'QualisoftAppBundle::layout.html.twig' %} 
 
+{# deploy_id es el identificador del despliegue #}
+{% block deploy_id %}data-deploy_id="view_users"{% endblock %}
+
 {% block row_container %}
-<!-- Inicia primer super contenedor de modulos -->
+   
+    <!-- Inicia primer super contenedor de modulos -->
 
     <div class="row">
 
@@ -186,6 +190,55 @@
         </div>
         <!-- Fin primer modulo del super contenedor de modulos -->
 
+        {# {{ render(controller('QualisoftAppBundle:User:new_module')) }} #}
+
+        <!-- Inicia segundo modulo del super contenedor de modulos -->
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+
+                <!-- bloque del subtitulo //-->
+                <div class="x_title">
+
+                    <h2>Nuevos usuarios</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                        <!-- Bloque de menu de herramientas //-->
+                        <!-- Fin bloque de opcion de herramientas -->
+                        <li><a class="close-link"><i class="fa fa-close"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+
+                </div>
+                <!-- /bloque del subtitulo //-->
+
+                <div class="x_content">
+      
+                    <!-- Alertas aqui, las clases diferenciaodoras: alert-success, alert-info
+                    alert-warning y alert-danger -->
+
+
+                    <!--  Fin de alertas -->
+
+                    <p>Registre un usuario.</p>
+
+                    <!-- contenido principal aqui -->
+
+                    {#
+                    Incluimos la plantilla del formulario para crear usuarios
+                    #}
+                    {{ include('QualisoftAppBundle:Admin/User:new_record.html.twig', {'form_new_record': form_new_record}) }}
+
+                    <!-- /contenido principal termina aqui -->
+
+                </div>
+
+            </div>
+
+        </div>
+        <!-- Fin segundo modulo del super contenedor de modulos -->
+
     </div>
     <!-- Fin primer super contenedor de modulos -->
 
@@ -231,8 +284,40 @@
 {% endblock %}
 
 {# Incluimos en el footer la logica del validator.#}
+{#
+    Incluimos en el footer la logica del validator
+    #}
 {% block footer_javascripts %}
 
     {{ parent() }}
+
+    <!-- form validation: mas info aqui: http://parsleyjs.org/doc/index.html -->
+    <script type="text/javascript" src="{{ asset('bundles/qualisoftapp/js/parsley/parsley.min.js') }}"></script>    
+    <!-- form validation -->
+    <script type="text/javascript">
+    $(document).ready(function () {
+        $.listen('parsley:field:validate', function () {
+            validateFront();
+        });
+        $('#new-record-form .btn').on('click', function () {
+            $('#new-record-form').parsley().validate();
+            validateFront();
+        });
+        var validateFront = function () {
+            if (true === $('#new-record-form').parsley().isValid()) {
+                $('.bs-callout-info').removeClass('hidden');
+                $('.bs-callout-warning').addClass('hidden');
+            } else {
+                $('.bs-callout-info').addClass('hidden');
+                $('.bs-callout-warning').removeClass('hidden');
+            }
+        };
+    });
+
+    try {
+        hljs.initHighlightingOnLoad();
+    } catch (err) {}
+    </script>
+    <!-- /form validation -->
 
 {% endblock %}

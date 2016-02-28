@@ -1,6 +1,14 @@
 {% if rows_found %} {#En caso de no haber registros encontrados no mostrar la grilla#}
 
-<table id="example" class="table table-striped responsive-utilities jambo_table">
+<!-- OJO, este div es la alerta general de advertencia de que se borrara un registro,
+tal vez deberiamos mandar este div a una plantilla para reusarla, por otro lado,
+deberiamos re ubicar el div para que se vea oculto, actualmente se alcanza a ver en la vista -->
+<div id="dialog-confirm-to-delete-one-record" title="Desea borrar el registro?">
+  <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>El registro se borrara permanentemente. Esta seguro?</p>
+</div>
+<!-- Fin div de la alerta de borrado de un registro -->
+
+<table id="records_list" class="table table-striped responsive-utilities jambo_table">
     <thead>
         <tr class="headings">
             {#Renderizamos las columnas que queremos mostrar en la grilla#}
@@ -32,7 +40,9 @@
                             <span class="sr-only">Toggle Dropdown</span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
-                            <li><a href="{{ path('qualisoft_admin_user_purge', { 'id_value': row.0}) }}">Purgar</a>
+                            <!--Importante usar los atributos data-xxx para que jquery los lea
+                            en diferentes logicas -->
+                            <li><a data-event="deleteThisRecord" data-msg="¿Desea eliminar el registro {{row.0}}?" data-href="{{ path('qualisoft_admin_user_purge', { 'id_value': row.0}) }}">Purgar</a>
                             </li>
                             <li><a href="#">Editar</a>
                             </li>
