@@ -7,3 +7,7 @@ qualisoft_app:
 app:
     resource: "@AppBundle/Controller/"
     type:     annotation
+
+# @diegotorres50: usamos FOSJsRoutingBundle para generar URLs desde JS
+# fos_js_routing:
+#     resource: "@FOSJsRoutingBundle/Resources/config/routing/routing.xml"
