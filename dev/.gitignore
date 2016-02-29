@@ -9,9 +9,8 @@
 
 /bin/
 
-# @diegotorres50 ignoramos el composer, ya que son archivos locale que pueden variar de una instalacion o update a otro
+# @diegotorres50 ignoramos el composer.phar, ya que es la aplicacion que ejecuta los comandos, pero NO se debe ignorar composer.lock NI TAMPOCO el composer.json ya que son los metadata que especifican las versiones y dependencias que el proyecto debe usar.Ver: https://getcomposer.org/doc/01-basic-usage.md y http://ilikekillnerds.com/2014/09/should-you-commit-composer-lock-into-your-git-repository/
 /composer.phar
-/composer.lock
 
 # @diegotorres50 ignoranos las librerias de terceros que se generan con la instalcion o el update del composer
 /vendor/
