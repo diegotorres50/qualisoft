@@ -328,9 +328,9 @@ class UserController extends Controller
     }
 
      /**
-     * @Route("admin/user/purge/{id_value}/{table_name}/{column_name}", name="qualisoft_admin_user_purge", defaults={"table_name" = "Users", "column_name" = "user_id"})   
+     * @Route("admin/user/purge/{id_value}/{token}/{table_name}/{column_name}", name="qualisoft_admin_user_purge", defaults={"table_name" = "Users", "column_name" = "user_id"})   
      */
-    public function purgeAction(Request $request, $id_value, $table_name, $column_name)
+    public function purgeAction(Request $request, $id_value, $token, $table_name, $column_name)
     {
 
         //DEBEMOS CONTROLAR QUE ESTA TEMPLATE SOLO SEA VISIBLE PARA USUARIOS MASTER
@@ -366,9 +366,28 @@ class UserController extends Controller
             else return $this->redirect($this->generateUrl('qualisoft_default_homepage')); //Por defecto al home sino hay referrer
         }
 
+
         /**
          * Termina logica verificacion de autenticaccion y acceso.
          */
+
+        /**
+         * Verificamos que el token sea valido para poder purgar al usuario
+         */
+
+        if(md5(md5($token)) != md5(md5($id_value))) //Si el token enviado no es valido
+        {
+            //Usamos getFlashBag() para renderizar la alerta de que token no es valido
+            $this->get('session')->getFlashBag()->add(
+                               'error_msg',
+                               'Token no es valido.'
+                           );
+            
+            //Dirigimos a la vista de usuarios
+            return $this->redirect($this->generateUrl('qualisoft_admin_user_general'));
+
+        }
+
 
         //Instanciamos el modelo de conexion mysql usando el modelo de conexion
         $m = new Model(
