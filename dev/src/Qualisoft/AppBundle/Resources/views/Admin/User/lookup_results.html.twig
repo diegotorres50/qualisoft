@@ -42,7 +42,9 @@ deberiamos re ubicar el div para que se vea oculto, actualmente se alcanza a ver
                         <ul class="dropdown-menu" role="menu">
                             <!--Importante usar los atributos data-xxx para que jquery los lea
                             en diferentes logicas -->
-                            <li><a data-event="deleteThisRecord" data-msg="¿Desea eliminar el registro {{row.0}}?" data-href="{{ path('qualisoft_admin_user_purge', { 'id_value': row.0, 'token': 'me-falta-hacer-el-md5-desde-twig'}) }}">Purgar</a>
+                            {# Seteamos el token que valida el request para purgar el registro (hacemos doble cifrado con md5), la funcion tomd5() es una funcion que extiende la extension de twig (es custom pero usa el md5 nativo de php) #}
+                            {% set _token = tomd5(tomd5(row.0)) %}
+                            <li><a data-event="deleteThisRecord" data-msg="¿Desea eliminar el registro {{row.0}}?" data-href="{{ path('qualisoft_admin_user_purge', { 'id_value': row.0, 'token': _token}) }}">Purgar</a>
                             </li>
                             <li><a href="#">Editar</a>
                             </li>

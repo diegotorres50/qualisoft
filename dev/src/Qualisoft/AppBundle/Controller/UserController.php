@@ -375,7 +375,7 @@ class UserController extends Controller
          * Verificamos que el token sea valido para poder purgar al usuario
          */
 
-        if(md5(md5($token)) != md5(md5($id_value))) //Si el token enviado no es valido
+        if($token != md5(md5($id_value))) //Si el token enviado no es valido
         {
             //Usamos getFlashBag() para renderizar la alerta de que token no es valido
             $this->get('session')->getFlashBag()->add(
