@@ -19,6 +19,7 @@
 /web/bundles/acmedemo/
 /web/bundles/framework/
 /web/bundles/sensiodistribution/
+/web/bundles/fosjsrouting
 
 # @diegotorres50 says el unico bundle que permitimos es el del propio proyecto qualisoft
 !web/bundles/qualisoftapp/
