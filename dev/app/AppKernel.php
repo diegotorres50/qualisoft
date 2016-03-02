@@ -19,7 +19,7 @@ class AppKernel extends Kernel
             new AppBundle\AppBundle(),
             new Qualisoft\AppBundle\QualisoftAppBundle(),
             //@diegotorres50 says Usamos FOSJsRoutingBundle para generar las URL desde JS
-            //new FOS\JsRoutingBundle\FOSJsRoutingBundle(),
+            new FOS\JsRoutingBundle\FOSJsRoutingBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {

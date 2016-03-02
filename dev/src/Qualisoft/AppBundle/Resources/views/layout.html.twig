@@ -31,6 +31,10 @@
 
     <!-- Para los dialogBox -->
     <script src="{{ asset('bundles/qualisoftapp/js/jquery-ui-1.11.4.custom/jquery-ui.js') }}"></script>
+
+    <!-- Para generar las URL desde JS con FOSJsRoutingBundle -->
+    <script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+    <script src="{{ path('fos_js_routing_js', {'callback': 'fos.Router.setData'}) }}"></script>
     {% endblock %}
     
 
