@@ -328,7 +328,7 @@ class UserController extends Controller
     }
 
      /**
-     * @Route("admin/user/purge/{id_value}/{token}/{table_name}/{column_name}", name="qualisoft_admin_user_purge", defaults={"table_name" = "Users", "column_name" = "user_id"})   
+     * @Route("admin/user/purge/{id_value}/{token}/{table_name}/{column_name}", name="qualisoft_admin_user_purge", defaults={"table_name" = "Users", "column_name" = "user_id"}, options={"expose" = true})   
      */
     public function purgeAction(Request $request, $id_value, $token, $table_name, $column_name)
     {
