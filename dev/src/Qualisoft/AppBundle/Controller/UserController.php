@@ -158,14 +158,16 @@ class UserController extends Controller
             ->setAction($this->generateUrl('qualisoft_admin_user_general'))
             ->setMethod('POST')
             //->setAttribute('class', 'form-horizontal')) Tarea: como agregar atriburos custom al form tag
-            ->add('userId', 'text', array(
+            ->add('user_id', 'text', array(
                 'constraints' => array(
                     new NotBlank(
                         array(
                             'message' => 'Por favor indique el usuario.')
                         ),
                  ),
-                'label' => 'Usuario*', 
+                'label' => 'Usuario*',
+                'max_length' => 20,
+                'trim' => true, 
                 'label_attr' => array('class' => 'control-label col-md-3'),
                 'mapped' => true, //el campo dejar de ser omitido al leer o escribir el objeto, en false el valor no aparece en el array de datos obtenidos
                 'required' => true,
@@ -178,7 +180,72 @@ class UserController extends Controller
                 'empty_data'  => null,         
                 )
             )
-            ->add('userPass', 'password', array(
+            ->add('user_name', 'text', array(
+                'constraints' => array(
+                    new NotBlank(
+                        array(
+                            'message' => 'Por favor indique el nombre de usuario.')
+                        ),
+                 ),
+                'max_length' => 200,
+                'trim' => true,                
+                'label' => 'Nombre*', 
+                'label_attr' => array('class' => 'control-label col-md-3'),
+                'mapped' => true, //el campo dejar de ser omitido al leer o escribir el objeto, en false el valor no aparece en el array de datos obtenidos
+                'required' => true,
+                'error_bubbling' => true,
+                'attr' => array(
+                    'class' => 'form-control',
+                    'data-validate-words' => '2', //Valida campo en javascript, https://github.com/yairEO/validator
+                    'placeholder' => 'Escribe tu nombre usuario.',
+                    ),                
+                'empty_data'  => null,         
+                )
+            ) 
+            ->add('user_mail', 'email', array(
+                'constraints' => array(
+                    new NotBlank(
+                        array(
+                            'message' => 'Por favor indique el mail de usuario.')
+                        ),
+                 ),
+                'max_length' => 200,
+                'trim' => true,                
+                'label' => 'Mail*', 
+                'label_attr' => array('class' => 'control-label col-md-3'),
+                'mapped' => true, //el campo dejar de ser omitido al leer o escribir el objeto, en false el valor no aparece en el array de datos obtenidos
+                'required' => true,
+                'error_bubbling' => true,
+                'attr' => array(
+                    'class' => 'form-control',
+                    'placeholder' => 'Escribe tu mail de usuario.',
+                    ),                
+                'empty_data'  => null,         
+                )
+            )
+            ->add('confirm_user_mail', 'email', array(
+                'constraints' => array(
+                    new NotBlank(
+                        array(
+                            'message' => 'Por favor confirme el mail de usuario.')
+                        ),
+                 ),
+                'max_length' => 200,
+                'trim' => true,                
+                'label' => 'Confirmar mail*', 
+                'label_attr' => array('class' => 'control-label col-md-3'),
+                'mapped' => true, //el campo dejar de ser omitido al leer o escribir el objeto, en false el valor no aparece en el array de datos obtenidos
+                'required' => true,
+                'error_bubbling' => true,
+                'attr' => array(
+                    'class' => 'form-control',
+                    'data-validate-linked' => 'form_user_mail', //Valida campo en javascript, https://github.com/yairEO/validator
+                    'placeholder' => 'Confirma tu mail de usuario.',
+                    ),                
+                'empty_data'  => null,         
+                )
+            )                                    
+            ->add('user_pass', 'password', array(
                 'constraints' => array(
                     new NotBlank(
                         array(
@@ -192,10 +259,31 @@ class UserController extends Controller
                 'attr' => array(
                     'class' => 'form-control',
                     'placeholder' => 'Escribe tu clave.',
+                    'data-validate-length' => '6,8', //Valida campo en javascript, https://github.com/yairEO/validator
                     ),                
                 'empty_data'  => null,                 
                 )
             )
+            ->add('confirm_user_pass', 'password', array(
+                'constraints' => array(
+                    new NotBlank(
+                        array(
+                            'message' => 'Por favor confirme la clave.')
+                        ),
+                 ),
+                'label' => 'Confirmar clave:', 
+                'label_attr' => array('class' => 'control-label col-md-3'),
+                'mapped' => true, //el campo dejar de ser omitido al leer o escribir el objeto, en false el valor no aparece en el array de datos obtenidos                'required' => true,
+                'error_bubbling' => true,
+                'attr' => array(
+                    'class' => 'form-control',
+                    'placeholder' => 'Escribe tu clave.',
+                    'data-validate-length' => '6,8', //Valida campo en javascript, https://github.com/yairEO/validator
+                    'data-validate-linked' => 'form_user_pass', //Valida campo en javascript, https://github.com/yairEO/validator                    
+                    ),                
+                'empty_data'  => null,                 
+                )
+            )            
             ->add('cancelData', 'reset', array(
                 'attr' => array(
                     'class' => 'btn btn-primary',
@@ -216,8 +304,91 @@ class UserController extends Controller
          *  El método handleRequest() detecta que el formulario no se ha enviado y por tanto, no hace nada.
          *  Cuando el usuario envía el formulario, el método handleRequest() lo detecta y guarda inmediatamente los datos enviados en las propiedades task y dueDate del objeto $task. 
          */
-        //$form_newRecord->handleRequest($request);
+        $form_newRecord->handleRequest($request);
 
+        /**
+         * devuelve false si el formulario no se ha enviado
+         */
+        if ($form_newRecord->isValid()) {
+
+               if($request->getMethod()=="POST")
+               {
+
+                    /*
+                    //@diepgotorres50: esta es una opcion para capturar los campos enviados del formulario    
+                    $user_id=$request->get("user_id");
+                    */ 
+                   
+                    $data = $form_newRecord->getData(); //Esto recupera en un array las llaves y valores de los campos enviados en el formulario
+
+                    $_pending_data = false; //Por defecto no hay errores de validacion
+
+                    //Si se detecta algun error desde mysql
+                    if ($data['user_mail'] != $data['confirm_user_mail']) {
+
+                        $_pending_data = true;
+
+                        $this->get('session')->getFlashBag()->add(
+                                    'warning_msg',
+                                    'El e-mail confirmado no coincide'
+                                );
+                    }
+
+                    //Si se detecta algun error desde mysql
+                    if ($data['user_pass'] != $data['confirm_user_pass']) {
+
+                        $_pending_data = true;
+
+                        $this->get('session')->getFlashBag()->add(
+                                    'warning_msg',
+                                    'El password confirmado no coincide'
+                                );
+                    }
+
+                    //Recargamos el formulario
+                    if($_pending_data) return $this->redirect($this->generateUrl('qualisoft_admin_user_general'));
+
+                    //var_dump($data); exit;
+
+                    //nextAction sirve para los casos que necesitemos identificar en que boton
+                    //se hizo click cuando el formulario tiene mas de un boton    
+                    $nextAction = $form_basicLookup->get('sendData')->isClicked()
+                            ? 'task_newRecord'
+                            : 'task_none';        
+
+                    //return $this->redirectToRoute($nextAction);
+
+                    //Instanciamos el modelo de conexion mysql usando el modelo de conexion
+                    $m = new Model(
+                        $this->container->getParameter('database_name'), 
+                        $this->container->getParameter('database_user'),
+                        $this->container->getParameter('database_password'),
+                        $this->container->getParameter('database_host')
+                    );
+
+                    //Tratamos de insertar los datos del formulario en mysql
+                    $_setNewRecord = $this->setNewRecord($m, 'Users', $data);
+
+                    //Si se detecta algun error desde mysql
+                    if (!empty($_setNewRecord) && is_array($_setNewRecord) && isset($_setNewRecord['errorMsg'])) {
+                        $this->get('session')->getFlashBag()->add(
+                                    'error_msg',
+                                    $_setNewRecord['errorMsg']
+                                );
+                    } else {
+                        //Sino tenemos variables de error, confirmamos exito
+                        $this->get('session')->getFlashBag()->add(
+                                    'success_msg',
+                                    'El registro: ' . $data['user_id'] . ' ha sido agregado!!!'
+                            );
+                    }
+                    //
+                    //
+
+
+               }    
+
+        } 
 
 /////////////////////////////////////////        
 
@@ -678,5 +849,36 @@ trait DefaultTrait
         return $_result;
 
     }
+
+    //Metodo para insertar un nuevo registro
+    protected function setNewRecord($_conexion, $_table_name, $_data)
+    {
+
+        //Este metodo recibe el nombre de la tabla y el registro que se
+        //insertara en ella
+
+        //El registro que se inserta en la tabla tiene un formato
+        //especial, ver documentacion en el procedimiento mysql
+        $_record_data .= "user_id#" . $_data['user_id'] . "#string&";
+        $_record_data .= "user_name#" . $_data['user_name'] . "#string&";
+        $_record_data .= "user_mail#" . $_data['user_mail'] . "#string&";
+        $_record_data .= "user_pass#" . $_data['user_pass'] . "#string";
+        //El registro se compone de una serie de campos a insertar
+        //separados por & y cada campo tiene 3 propiedades (id, value and type),
+        //cada propuedad del campo separada por #
+
+        //Seteamos el objeto parametro que enviaremos a mysql
+        $param_values = array(
+            'TABLE' => $_table_name,
+            'RECORD' => $_record_data
+        );
+
+        //Tratamos de insertar el nuevo registro en mysql
+        $_result = $_conexion->setNewRecord($param_values);
+
+        //Retornamos el resultado del insert
+        return $_result;
+
+    }    
 
 }

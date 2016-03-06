@@ -21,20 +21,52 @@ Aqui va el formulario
     <span class="section">Nuevo usuario</span>
 
     <div class="item form-group">
-        {{ form_label(form_new_record.userId) }}
+        {{ form_label(form_new_record.user_id) }}
         <div class="col-md-6 col-sm-6 col-xs-12">
-            {{ form_widget(form_new_record.userId) }}
-            {{ form_errors(form_new_record.userId) }}
+            {{ form_widget(form_new_record.user_id) }}
+            {{ form_errors(form_new_record.user_id) }}
         </div>
     </div>
 
     <div class="item form-group">
-        {{ form_label(form_new_record.userPass) }}
+        {{ form_label(form_new_record.user_name) }}
         <div class="col-md-6 col-sm-6 col-xs-12">
-            {{ form_widget(form_new_record.userPass) }}
-            {{ form_errors(form_new_record.userPass) }}
+            {{ form_widget(form_new_record.user_name) }}
+            {{ form_errors(form_new_record.user_name) }}
         </div>
     </div>
+
+    <div class="item form-group">
+        {{ form_label(form_new_record.user_mail) }}
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            {{ form_widget(form_new_record.user_mail) }}
+            {{ form_errors(form_new_record.user_mail) }}
+        </div>
+    </div>    
+
+    <div class="item form-group">
+        {{ form_label(form_new_record.confirm_user_mail) }}
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            {{ form_widget(form_new_record.confirm_user_mail) }}
+            {{ form_errors(form_new_record.confirm_user_mail) }}
+        </div>
+    </div> 
+
+    <div class="item form-group">
+        {{ form_label(form_new_record.user_pass) }}
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            {{ form_widget(form_new_record.user_pass) }}
+            {{ form_errors(form_new_record.user_pass) }}
+        </div>
+    </div>
+
+    <div class="item form-group">
+        {{ form_label(form_new_record.confirm_user_pass) }}
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            {{ form_widget(form_new_record.confirm_user_pass) }}
+            {{ form_errors(form_new_record.confirm_user_pass) }}
+        </div>
+    </div>    
 
     <div class="ln_solid"></div>
     <div class="form-group">

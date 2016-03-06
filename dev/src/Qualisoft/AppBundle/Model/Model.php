@@ -631,6 +631,38 @@ class Model
         return $result;
      }
 
+    public function setNewRecord($values)
+    {
+
+        /*
+        @diegotorres50: este procedimiento inserta un nuevo registro, OJO QUE LAS Ñ FALLAN
+        PORQUE DAÑAN LAS COMILLAS SIMPLES, PARA HACER BUGFIXING
+        */
+        
+        if(!isset($values) || empty($values) || !is_array($values)) 
+            return array('errorMsg' => 'Se esperaba un objeto como parámetro del método');
+
+        //Escapamos los strings
+        $values['TABLE'] = mysqli_real_escape_string($this->conexion, $values['TABLE']);
+        $values['RECORD'] = mysqli_real_escape_string($this->conexion, $values['RECORD']);
+
+        //$values['RECORD'] tiene un formato especial, ver documentacion desde el procedimiento en mysql
+
+        //Ejecutamos el procedimiento
+        //No usemos el nombre de la base de datos para evitar errores: nombrebasededatos. procedure(
+        $sql = "call procedure_addRecord('" . $values['TABLE'] . "', '" . $values['RECORD'] . "');";
+
+        $result = mysqli_query($this->conexion, $sql);
+
+        if(!$result) {
+            return array('errorMsg' => 'No ha sido posible insertar el registro: ' . mysqli_error($this->conexion));
+        }
+
+        //mysqli_close($this->conexion); No cerremos la conexion para reusarla    
+
+        return $result;
+     }     
+
     /*
 
     @diegotorres50: estos son metodos dummy
