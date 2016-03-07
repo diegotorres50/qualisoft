@@ -646,6 +646,60 @@ class UserController extends Controller
 
     }
 
+     /**
+     * @Route("admin/user/edit/{id_value}", name="qualisoft_admin_user_edit", options={"expose" = true})   
+     */
+    public function editAction(Request $request, $id_value)
+    {
+
+        //DEBEMOS CONTROLAR QUE ESTA TEMPLATE SOLO SEA VISIBLE PARA USUARIOS MASTER
+
+        /**
+         * Inicia logica verificacion de autenticaccion y acceso mediante las sesiones.
+         */
+
+        $session=$request->getSession(); //Instanciamos la sesion del navegador
+
+        if(!$session->has("userId")) //Si en la sesion del browser no esta seteada la variable userId
+        {
+            //Usamos getFlashBag() para renderizar la alerta de que no esta logueado
+            $this->get('session')->getFlashBag()->add(
+                               'warning_msg',
+                               'Debe estar logueado para ver este contenido.'
+                           );
+            
+            //Dirigimos al login para que haga su autenticacion primero
+            return $this->redirect($this->generateUrl('qualisoft_security_login'));
+
+        } elseif(!$session->has("userRole") || !in_array('MASTER', Config::$ROLES[$session->get("userRole")])) { //Si no se tiene el role de usuario en la sesion o no esta en el array de configuracion de qualisoft es porque no es un usuario con perfil de MASTER
+
+            $this->get('session')->getFlashBag()->add(
+                               'warning_msg',
+                               'El usuario no tiene suficientes permisos ' . $session->get("userRole") . ' para purgar el registro.'
+                           );
+            
+            // redirect the user to where they were before the login process begun.
+            $referer_url = $request->headers->get('referer');
+                        
+            if(!empty($referer_url)) return $this->redirect($request->headers->get('referer'));
+            else return $this->redirect($this->generateUrl('qualisoft_default_homepage')); //Por defecto al home sino hay referrer
+        }
+
+
+        /**
+         * Termina logica verificacion de autenticaccion y acceso.
+         */
+
+        // ... renderiza la vista ...
+        // OJO, CUANDO SE USA MAS DE DOS NIVELES DE DIRECTORIOS, SE DEBE USAR EL SLASH /
+        return $this->render('QualisoftAppBundle:Admin/User:edit_record.html.twig', 
+            array(
+                'data' => 'cualquier cosa'
+                )
+            );
+
+    }    
+
 }
 
 //Funciones custom de @diegotorres50 para incluiir en el contrlador
